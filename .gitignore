@@ -1,0 +1,41 @@
+# --- Global ---
+.DS_Store
+*.log
+*.tmp
+*.swp
+*.swo
+
+# --- Python / FastAPI (backend) ---
+venv/
+.env
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Uvicorn / coverage / pytest
+.coverage
+htmlcov/
+.pytest_cache/
+
+# --- Node / Next.js (frontend) ---
+node_modules/
+.npm/
+.yarn/
+.pnp.* 
+.next/
+out/
+coverage/
+.env.local
+.env.development
+.env.production
+.env.test
+.next/cache/
+
+# --- IDE ---
+.vscode/
+.idea/

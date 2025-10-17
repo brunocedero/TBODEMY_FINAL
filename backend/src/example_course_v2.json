@@ -1,0 +1,141 @@
+{
+  "title": "English for Beginners",
+  "description": "Curso completo de inglés con audios generados automáticamente",
+  "is_published": false,
+  "unidades": [
+    {
+      "title": "Unit 1: Greetings and Introductions",
+      "contenido": [
+        {
+          "tipo": "texto",
+          "texto": "<h2>Welcome to Unit 1</h2><p>In this unit, you will learn basic greetings and how to introduce yourself in English.</p>"
+        },
+        {
+          "tipo": "texto",
+          "texto": "<h3>Common Greetings</h3><ul><li>Hello</li><li>Hi</li><li>Good morning</li><li>Good afternoon</li><li>Good evening</li></ul>"
+        },
+        {
+          "tipo": "audio",
+          "sentence": "Hello, how are you?"
+        },
+        {
+          "tipo": "audio",
+          "sentence": "Good morning! Nice to meet you."
+        },
+        {
+          "tipo": "audio",
+          "sentence": "Hi! My name is John. What's your name?"
+        },
+        {
+          "tipo": "quiz",
+          "question": "Hello, [how] are you?",
+          "correct_answer": "how",
+          "quiz_type": "fill_blank"
+        },
+        {
+          "tipo": "quiz",
+          "question": "What is a common greeting in English?",
+          "correct_answer": "Hello",
+          "quiz_type": "multiple_choice",
+          "options": ["Goodbye", "Hello", "Thank you", "Sorry"]
+        },
+        {
+          "tipo": "audio",
+          "sentence": "Nice to meet you too!"
+        }
+      ]
+    },
+    {
+      "title": "Unit 2: Numbers and Colors",
+      "contenido": [
+        {
+          "tipo": "texto",
+          "texto": "<h2>Unit 2: Numbers and Colors</h2><p>Learn to count and identify colors in English.</p>"
+        },
+        {
+          "tipo": "texto",
+          "texto": "<h3>Numbers 1-10</h3><p>One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten</p>"
+        },
+        {
+          "tipo": "audio",
+          "sentence": "One, two, three, four, five."
+        },
+        {
+          "tipo": "audio",
+          "sentence": "Six, seven, eight, nine, ten."
+        },
+        {
+          "tipo": "quiz",
+          "question": "What comes after five?",
+          "correct_answer": "Six",
+          "quiz_type": "multiple_choice",
+          "options": ["Four", "Five", "Six", "Seven"]
+        },
+        {
+          "tipo": "texto",
+          "texto": "<h3>Basic Colors</h3><p>Red, Blue, Green, Yellow, Black, White, Orange, Purple, Pink, Brown</p>"
+        },
+        {
+          "tipo": "audio",
+          "sentence": "The sky is blue and the grass is green."
+        },
+        {
+          "tipo": "audio",
+          "sentence": "I like the color red."
+        },
+        {
+          "tipo": "quiz",
+          "question": "The sky is [blue].",
+          "correct_answer": "blue",
+          "quiz_type": "fill_blank"
+        }
+      ]
+    },
+    {
+      "title": "Unit 3: Daily Activities",
+      "contenido": [
+        {
+          "tipo": "texto",
+          "texto": "<h2>Unit 3: Daily Activities</h2><p>Describe your daily routine in English.</p>"
+        },
+        {
+          "tipo": "audio",
+          "sentence": "I wake up at seven o'clock every morning."
+        },
+        {
+          "tipo": "audio",
+          "sentence": "I have breakfast at eight o'clock."
+        },
+        {
+          "tipo": "audio",
+          "sentence": "I go to work by bus."
+        },
+        {
+          "tipo": "quiz",
+          "question": "I wake [up] at seven o'clock.",
+          "correct_answer": "up",
+          "quiz_type": "fill_blank"
+        },
+        {
+          "tipo": "quiz",
+          "question": "When do people usually have breakfast?",
+          "correct_answer": "In the morning",
+          "quiz_type": "multiple_choice",
+          "options": ["In the evening", "In the morning", "At night", "In the afternoon"]
+        },
+        {
+          "tipo": "audio",
+          "sentence": "I come home at six in the evening."
+        },
+        {
+          "tipo": "audio",
+          "sentence": "I have dinner with my family."
+        },
+        {
+          "tipo": "texto",
+          "texto": "<h3>Practice</h3><p>Try to describe your own daily routine using the vocabulary you've learned.</p>"
+        }
+      ]
+    }
+  ]
+}

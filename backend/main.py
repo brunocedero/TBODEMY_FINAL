@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Dict, Any
 from datetime import datetime, timedelta
 import jwt
 from jwt import PyJWTError
@@ -39,10 +39,11 @@ app.add_middleware(
 STATIC_DIR = Path("static")
 STATIC_DIR.mkdir(exist_ok=True)
 (STATIC_DIR / "audio").mkdir(exist_ok=True)
+(STATIC_DIR / "speaking").mkdir(exist_ok=True)
 
 # Montar directorio de archivos estáticos
-app.mount("/audio", StaticFiles(directory="static/audio"), name="audio")
-
+app.mount("/static/audio", StaticFiles(directory="static/audio"), name="audio")
+app.mount("/static/speaking", StaticFiles(directory="static/speaking"), name="speaking_files")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -639,6 +640,140 @@ def root():
         "version": "1.0.0",
         "docs": "/docs"
     }
+
+
+# ==================== SPEAKING PRACTICE ENDPOINTS ====================
+from fastapi import UploadFile, File
+import shutil
+from pathlib import Path
+
+# Directorio temporal para audios subidos
+TEMP_AUDIO_DIR = Path("temp_audio")
+TEMP_AUDIO_DIR.mkdir(exist_ok=True)
+
+
+@app.post("/speaking/sessions", response_model=schemas.SpeakingSessionResponse)
+def create_speaking_session_endpoint(
+    session_data: schemas.SpeakingSessionCreate,
+    current_user: models.User = Depends(get_current_student),
+    db: Session = Depends(get_db)
+):
+    """Crear nueva sesión de speaking con IA"""
+    try:
+        session = crud.create_speaking_session(
+            db=db,
+            student_id=current_user.id,
+            topic=session_data.topic,
+            conversation_type=session_data.conversation_type.value,
+            difficulty_level=session_data.difficulty_level.value
+        )
+        return session
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/speaking/sessions", response_model=List[schemas.SpeakingSessionResponse])
+def get_my_speaking_sessions(
+    current_user: models.User = Depends(get_current_student),
+    db: Session = Depends(get_db)
+):
+    """Obtener sesiones de speaking del estudiante"""
+    return crud.get_student_speaking_sessions(db, current_user.id)
+
+
+@app.get("/speaking/sessions/{session_id}", response_model=schemas.SpeakingSessionWithMessages)
+def get_speaking_session_detail(
+    session_id: int,
+    current_user: models.User = Depends(get_current_student),
+    db: Session = Depends(get_db)
+):
+    """Obtener detalles de una sesión con mensajes"""
+    session = crud.get_speaking_session(db, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if session.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    return session
+
+
+from src.openai_service import STTQuotaExceededError  # importa la excepción
+import shutil
+
+@app.post("/speaking/sessions/{session_id}/message")
+async def send_speaking_message(
+    session_id: int,
+    audio: UploadFile = File(...),
+    current_user: models.User = Depends(get_current_student),
+    db: Session = Depends(get_db)
+):
+    """
+    Enviar mensaje de voz y recibir respuesta del asistente.
+    Ahora devuelve AMBOS mensajes (user y assistant) con corrección gramatical
+    """
+    # 1) Verificar sesión y permisos
+    session = crud.get_speaking_session(db, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if session.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    if not session.is_active:
+        raise HTTPException(status_code=400, detail="Session is not active")
+
+    # 2) Guardar audio temporalmente
+    temp_file_path = TEMP_AUDIO_DIR / f"temp_{session_id}_{audio.filename}"
+
+    try:
+        with open(temp_file_path, "wb") as buffer:
+            shutil.copyfileobj(audio.file, buffer)
+
+        # 3) Procesar mensaje (transcribe -> corrige -> genera respuesta -> TTS)
+        result = crud.add_speaking_message(db, session_id, str(temp_file_path))
+        
+        # 4) Convertir a schemas para respuesta
+        user_message = schemas.SpeakingMessageResponse.from_orm(result["user_message"])
+        assistant_message = schemas.SpeakingMessageResponse.from_orm(result["assistant_message"])
+        
+        # 5) Devolver ambos mensajes
+        return {
+            "user_message": user_message,
+            "assistant_message": assistant_message
+        }
+
+    except STTQuotaExceededError:
+        raise HTTPException(
+            status_code=429, 
+            detail="STT quota exceeded. Please check your OpenAI billing."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error processing audio: {str(e)}"
+        )
+    finally:
+        # 6) Limpiar archivo temporal
+        try:
+            if temp_file_path.exists():
+                temp_file_path.unlink()
+        except Exception:
+            pass
+
+
+@app.post("/speaking/sessions/{session_id}/end")
+def end_speaking_session_endpoint(
+    session_id: int,
+    current_user: models.User = Depends(get_current_student),
+    db: Session = Depends(get_db)
+):
+    """Finalizar sesión de speaking"""
+    session = crud.get_speaking_session(db, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if session.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    crud.end_speaking_session(db, session_id)
+    return {"message": "Session ended successfully"}
 
 
 if __name__ == "__main__":

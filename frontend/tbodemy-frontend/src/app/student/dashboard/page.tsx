@@ -63,6 +63,12 @@ export default function StudentDashboard() {
             </div>
             <div className="flex items-center gap-4">
               <button
+                onClick={() => router.push('/student/speaking')}
+                className="flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 font-medium"
+              >
+                🎙️ Speaking Practice
+              </button>
+              <button
                 onClick={() => router.push('/student/friends')}
                 className="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-200 font-medium"
               >

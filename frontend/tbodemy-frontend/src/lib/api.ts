@@ -2,12 +2,15 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+console.log('🔥 API.TS LOADED - API_URL:', API_URL);
+
 const api = axios.create({
   baseURL: API_URL,
 });
 
 // Agregar token a todas las peticiones
 api.interceptors.request.use((config) => {
+  
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -284,4 +287,101 @@ export const social = {
     });
     return data;
   }
+};
+
+
+// ==================== TIPOS DE SPEAKING ====================
+export interface SpeakingSession {
+  id: number;
+  student_id: number;
+  topic: string;
+  conversation_type: 'formal' | 'informal' | 'business' | 'casual';
+  difficulty_level: 'beginner' | 'intermediate' | 'advanced';
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface SpeakingMessage {
+  id: number;
+  session_id: number;
+  role: 'user' | 'assistant';
+  content: string;
+  corrected_content?: string | null;  // ⬅️ YA ESTÁ CORRECTO
+  audio_path?: string | null;
+  created_at: string;
+}
+
+export interface SpeakingMessageResponse {
+  user_message: SpeakingMessage;      // ⬅️ YA ESTÁ CORRECTO
+  assistant_message: SpeakingMessage; // ⬅️ YA ESTÁ CORRECTO
+}
+
+export interface SpeakingSessionWithMessages extends SpeakingSession {
+  messages: SpeakingMessage[];
+}
+
+// ==================== SPEAKING PRACTICE ====================
+export const speaking = {
+  // Crear nueva sesión de speaking
+  createSession: async (sessionData: {
+    topic: string;
+    conversation_type: 'formal' | 'informal' | 'business' | 'casual';
+    difficulty_level: 'beginner' | 'intermediate' | 'advanced';
+  }) => {
+    const { data } = await api.post<SpeakingSession>('/speaking/sessions', sessionData);
+    return data;
+  },
+
+  // Obtener todas las sesiones del estudiante
+  getMySessions: async () => {
+    const { data } = await api.get<SpeakingSession[]>('/speaking/sessions');
+    return data;
+  },
+
+  // Obtener detalles de una sesión con mensajes
+  getSessionById: async (sessionId: number) => {
+    const { data } = await api.get<SpeakingSessionWithMessages>(`/speaking/sessions/${sessionId}`);
+    return data;
+  },
+
+  // Enviar mensaje de audio - ✅ ACTUALIZADO
+  sendAudioMessage: async (sessionId: number, audioBlob: Blob): Promise<SpeakingMessageResponse> => {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'audio.webm');
+    
+    try {
+      const { data } = await api.post<SpeakingMessageResponse>(
+        `/speaking/sessions/${sessionId}/message`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      // ✅ Ahora devuelve un objeto con user_message y assistant_message
+      return data;
+      
+    } catch (error: any) {
+      // Manejo específico para error 429 (cuota excedida)
+      if (error.response?.status === 429) {
+        throw new Error(
+          'Has excedido tu cuota de transcripción de OpenAI. Por favor, verifica tu cuenta en platform.openai.com o intenta más tarde.'
+        );
+      }
+      
+      // Manejo de otros errores
+      if (error.response?.data?.detail) {
+        throw new Error(error.response.data.detail);
+      }
+      
+      throw new Error('Error al enviar el mensaje de audio. Por favor, intenta nuevamente.');
+    }
+  },
+
+  // Finalizar sesión
+  endSession: async (sessionId: number) => {
+    const { data } = await api.post(`/speaking/sessions/${sessionId}/end`);
+    return data;
+  },
 };

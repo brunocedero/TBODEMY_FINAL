@@ -145,3 +145,51 @@ class Message(Base):
     # Relaciones
     sender = relationship("User", foreign_keys=[sender_id], backref="sent_messages")
     receiver = relationship("User", foreign_keys=[receiver_id], backref="received_messages")
+
+
+# ==================== SPEAKING PRACTICE ====================
+
+class ConversationType(str, enum.Enum):
+    formal = "formal"
+    informal = "informal"
+    business = "business"
+    casual = "casual"
+
+
+class DifficultyLevel(str, enum.Enum):
+    beginner = "beginner"
+    intermediate = "intermediate"
+    advanced = "advanced"
+
+
+class SpeakingSession(Base):
+    __tablename__ = "speaking_sessions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    topic = Column(String(255), nullable=False)
+    conversation_type = Column(Enum(ConversationType, name='conversation_type'), nullable=False)
+    difficulty_level = Column(Enum(DifficultyLevel, name='difficulty_level'), nullable=False)
+    system_prompt = Column(Text)  # Prompt del sistema para la IA
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    ended_at = Column(DateTime)
+    
+    # Relaciones
+    student = relationship("User", backref="speaking_sessions")
+    messages = relationship("SpeakingMessage", back_populates="session", cascade="all, delete-orphan")
+
+
+class SpeakingMessage(Base):
+    __tablename__ = "speaking_messages"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(Integer, ForeignKey("speaking_sessions.id"), nullable=False)
+    role = Column(String(50), nullable=False)  # 'user' o 'assistant'
+    content = Column(Text, nullable=False)  # Texto transcrito
+    corrected_content = Column(Text)  # ⬅️ NUEVO: Versión corregida (solo para role='user')
+    audio_path = Column(String(500))  # Ruta del audio (si existe)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relaciones
+    session = relationship("SpeakingSession", back_populates="messages")

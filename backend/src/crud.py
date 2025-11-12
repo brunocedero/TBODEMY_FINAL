@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 from src import models
 from src import schemas
@@ -507,11 +507,17 @@ def get_all_students(db: Session, exclude_user_id: int = None) -> List[models.Us
 
 # ==================== MESSAGES ====================
 def send_message(db: Session, sender_id: int, receiver_id: int, content: str) -> models.Message:
-    """Enviar mensaje con corrección gramatical"""
+    """Enviar mensaje con corrección gramatical mejorada (GPT-4)"""
     from src.grammar_checker import check_grammar
     
-    # Verificar gramática
+    # Verificar gramática usando GPT-4 (detecta errores de tiempo verbal, etc.)
     grammar_result = check_grammar(content)
+    
+    # Log opcional para debugging
+    if grammar_result.get('has_errors'):
+        print(f"📝 Message grammar correction:")
+        print(f"   Original: {content}")
+        print(f"   Corrected: {grammar_result['corrected']}")
     
     message = models.Message(
         sender_id=sender_id,
@@ -602,3 +608,167 @@ def mark_messages_as_read(db: Session, user_id: int, sender_id: int):
         models.Message.is_read == False
     ).update({models.Message.is_read: True})
     db.commit()
+
+
+# ==================== SPEAKING PRACTICE ====================
+def create_speaking_session(
+    db: Session, 
+    student_id: int, 
+    topic: str, 
+    conversation_type: str, 
+    difficulty_level: str
+) -> models.SpeakingSession:
+    from src.openai_service import generate_system_prompt
+    system_prompt = generate_system_prompt(topic, conversation_type, difficulty_level)
+
+    session = models.SpeakingSession(
+        student_id=student_id,
+        topic=topic,
+        conversation_type=conversation_type,
+        difficulty_level=difficulty_level,
+        system_prompt=system_prompt,
+        is_active=True
+    )
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+
+    # --- Nuevo: no tumbar si OpenAI falla ---
+    try:
+        from src.openai_service import generate_response, text_to_speech
+        initial_messages = [{"role": "system", "content": system_prompt}]
+        assistant_response = generate_response(initial_messages)
+        audio_path = None
+        try:
+            audio_path = text_to_speech(assistant_response, session.id, 0)
+        except Exception as e:
+            print(f"[speaking] TTS failed: {e}")
+
+        initial_message = models.SpeakingMessage(
+            session_id=session.id,
+            role="assistant",
+            content=assistant_response,
+            audio_path=audio_path
+        )
+        db.add(initial_message)
+        db.commit()
+    except Exception as e:
+        # registramos y seguimos; la sesión ya existe
+        print(f"[speaking] Initial assistant message failed: {e}")
+
+    return session
+
+
+def get_speaking_session(db: Session, session_id: int) -> Optional[models.SpeakingSession]:
+    """Obtener sesión por ID"""
+    return db.query(models.SpeakingSession).filter(
+        models.SpeakingSession.id == session_id
+    ).first()
+
+
+def get_student_speaking_sessions(db: Session, student_id: int) -> List[models.SpeakingSession]:
+    """Obtener sesiones de un estudiante"""
+    return db.query(models.SpeakingSession).filter(
+        models.SpeakingSession.student_id == student_id
+    ).order_by(models.SpeakingSession.created_at.desc()).all()
+
+
+def add_speaking_message(
+    db: Session,
+    session_id: int,
+    audio_file_path: str
+) -> Dict[str, Any]:
+    """
+    Procesar mensaje de voz del estudiante y generar respuesta
+    Ahora devuelve AMBOS mensajes (user y assistant) con corrección gramatical mejorada (GPT-4)
+    """
+    from src.openai_service import transcribe_audio, generate_response, text_to_speech
+    from src.grammar_checker import check_grammar  # Ahora usa GPT-4 por defecto
+    
+    session = get_speaking_session(db, session_id)
+    if not session:
+        raise Exception("Session not found")
+    
+    # 1. Transcribir audio del estudiante
+    user_text = transcribe_audio(audio_file_path)
+    
+    # 2. Verificar gramática del texto del estudiante usando GPT-4
+    # Esto ahora detecta errores de tiempo verbal, artículos, preposiciones, etc.
+    grammar_result = check_grammar(user_text)
+    
+    # Solo guardar corrección si hay errores reales
+    corrected_text = grammar_result['corrected'] if grammar_result['has_errors'] else None
+    
+    # Log para debugging (opcional)
+    if grammar_result.get('has_errors'):
+        print(f"📝 Grammar correction:")
+        print(f"   Original: {user_text}")
+        print(f"   Corrected: {grammar_result['corrected']}")
+        if grammar_result.get('errors'):
+            for error in grammar_result['errors']:
+                print(f"   - {error['original']} → {error['correction']}: {error['explanation']}")
+    
+    # 3. Guardar mensaje del usuario (con corrección si tiene errores)
+    user_message = models.SpeakingMessage(
+        session_id=session_id,
+        role="user",
+        content=user_text,
+        corrected_content=corrected_text,  # ✨ Corrección mejorada con GPT-4
+        audio_path=None  # El audio del usuario no lo guardamos en este caso
+    )
+    db.add(user_message)
+    db.flush()
+    
+    # 4. Obtener historial de conversación
+    all_messages = db.query(models.SpeakingMessage).filter(
+        models.SpeakingMessage.session_id == session_id
+    ).order_by(models.SpeakingMessage.created_at).all()
+    
+    conversation_history = [{"role": "system", "content": session.system_prompt}]
+    conversation_history.extend([
+        {"role": msg.role, "content": msg.content}
+        for msg in all_messages
+    ])
+    
+    # 5. Generar respuesta del asistente
+    assistant_text = generate_response(conversation_history)
+    
+    # 6. Generar audio de la respuesta
+    assistant_audio_path = text_to_speech(assistant_text, session_id, user_message.id + 1)
+    
+    # 7. Guardar mensaje del asistente
+    assistant_message = models.SpeakingMessage(
+        session_id=session_id,
+        role="assistant",
+        content=assistant_text,
+        corrected_content=None,  # Los mensajes del asistente no necesitan corrección
+        audio_path=assistant_audio_path
+    )
+    db.add(assistant_message)
+    db.commit()
+    
+    # Refrescar ambos mensajes
+    db.refresh(user_message)
+    db.refresh(assistant_message)
+    
+    # 8. Devolver AMBOS mensajes
+    return {
+        "user_message": user_message,
+        "assistant_message": assistant_message
+    }
+
+
+def end_speaking_session(db: Session, session_id: int):
+    """Finalizar sesión de speaking"""
+    session = get_speaking_session(db, session_id)
+    if session:
+        session.is_active = False
+        session.ended_at = datetime.utcnow()
+        db.commit()
+
+
+def get_session_messages(db: Session, session_id: int) -> List[models.SpeakingMessage]:
+    """Obtener mensajes de una sesión"""
+    return db.query(models.SpeakingMessage).filter(
+        models.SpeakingMessage.session_id == session_id
+    ).order_by(models.SpeakingMessage.created_at).all()

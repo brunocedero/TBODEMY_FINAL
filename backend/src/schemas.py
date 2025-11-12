@@ -279,3 +279,58 @@ class ConversationPreview(BaseModel):
     user: User  # El otro usuario en la conversación
     last_message: MessageResponse
     unread_count: int
+
+
+
+# ==================== SPEAKING PRACTICE ====================
+
+class ConversationType(str, Enum):
+    formal = "formal"
+    informal = "informal"
+    business = "business"
+    casual = "casual"
+
+
+class DifficultyLevel(str, Enum):
+    beginner = "beginner"
+    intermediate = "intermediate"
+    advanced = "advanced"
+
+
+class SpeakingSessionCreate(BaseModel):
+    topic: str
+    conversation_type: ConversationType
+    difficulty_level: DifficultyLevel
+
+
+class SpeakingSessionResponse(BaseModel):
+    id: int
+    student_id: int
+    topic: str
+    conversation_type: ConversationType
+    difficulty_level: DifficultyLevel
+    is_active: bool
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+class SpeakingMessageResponse(BaseModel):
+    id: int
+    session_id: int
+    role: str
+    content: str
+    corrected_content: Optional[str] = None  # ⬅️ NUEVO: Versión corregida
+    audio_path: Optional[str]
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True  
+
+
+class SpeakingSessionWithMessages(SpeakingSessionResponse):
+    messages: List[SpeakingMessageResponse] = []
+    
+    class Config:
+        from_attributes = True

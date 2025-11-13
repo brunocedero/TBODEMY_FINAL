@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth, courses, type Course } from '@/lib/api';
+import { auth, courses, enrollments, type Course, type Enrollment } from '@/lib/api';
 
 export default function StudentDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
+  const [myEnrollments, setMyEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [enrollingCourse, setEnrollingCourse] = useState<number | null>(null);
 
   useEffect(() => {
     if (!auth.isAuthenticated()) {
@@ -23,18 +25,48 @@ export default function StudentDashboard() {
     }
 
     setUser(currentUser);
-    loadCourses();
+    loadData();
   }, [router]);
 
-  const loadCourses = async () => {
+  const loadData = async () => {
     try {
-      const allCourses = await courses.getAll();
+      const [allCourses, myEnrollmentsData] = await Promise.all([
+        courses.getAll(),
+        enrollments.getMyEnrollments()
+      ]);
+      
       // Mostrar solo cursos publicados
       setAvailableCourses(allCourses.filter(c => c.is_published));
+      setMyEnrollments(myEnrollmentsData);
     } catch (err) {
-      console.error('Error loading courses:', err);
+      console.error('Error loading data:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const isEnrolled = (courseId: number) => {
+    return myEnrollments.some(e => e.course_id === courseId);
+  };
+
+  const handleEnroll = async (courseId: number) => {
+    setEnrollingCourse(courseId);
+    try {
+      await enrollments.enroll(courseId);
+      // Recargar enrollments
+      const updatedEnrollments = await enrollments.getMyEnrollments();
+      setMyEnrollments(updatedEnrollments);
+      // Navegar al curso
+      router.push(`/student/courses/${courseId}`);
+    } catch (error: any) {
+      console.error('Error enrolling:', error);
+      if (error.response?.status === 400) {
+        alert('Ya estás inscrito en este curso');
+      } else {
+        alert('Error al inscribirse en el curso');
+      }
+    } finally {
+      setEnrollingCourse(null);
     }
   };
 
@@ -50,6 +82,9 @@ export default function StudentDashboard() {
       </div>
     );
   }
+
+  const enrolledCourses = availableCourses.filter(c => isEnrolled(c.id));
+  const availableToEnroll = availableCourses.filter(c => !isEnrolled(c.id));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -97,12 +132,12 @@ export default function StudentDashboard() {
         {/* Stats */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Cursos Disponibles</div>
-            <div className="text-3xl font-bold text-indigo-600">{availableCourses.length}</div>
+            <div className="text-sm text-gray-600">Cursos Inscritos</div>
+            <div className="text-3xl font-bold text-indigo-600">{enrolledCourses.length}</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Tu Progreso</div>
-            <div className="text-3xl font-bold text-green-600">0%</div>
+            <div className="text-sm text-gray-600">Cursos Disponibles</div>
+            <div className="text-3xl font-bold text-green-600">{availableToEnroll.length}</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="text-sm text-gray-600">Lecciones Completadas</div>
@@ -110,19 +145,64 @@ export default function StudentDashboard() {
           </div>
         </div>
 
+        {/* My Enrolled Courses */}
+        {enrolledCourses.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">📚 Mis Cursos</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {enrolledCourses.map((course) => (
+                <div
+                  key={course.id}
+                  className="bg-white rounded-lg shadow-sm border-2 border-green-200 hover:border-green-400 transition overflow-hidden"
+                >
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-32 flex items-center justify-center relative">
+                    <span className="text-6xl">📚</span>
+                    <div className="absolute top-2 right-2 bg-white text-green-600 px-3 py-1 rounded-full text-xs font-bold">
+                      ✓ Inscrito
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{course.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                      {course.description || 'Curso de inglés'}
+                    </p>
+                    
+                    <button
+                      onClick={() => router.push(`/student/courses/${course.id}`)}
+                      className="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition font-medium"
+                    >
+                      Continuar Curso →
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Available Courses */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">📚 Cursos Disponibles</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            🔍 Descubre Más Cursos
+          </h2>
           
-          {availableCourses.length === 0 ? (
+          {availableToEnroll.length === 0 ? (
             <div className="bg-white rounded-lg shadow p-12 text-center">
-              <div className="text-6xl mb-4">📖</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No hay cursos disponibles</h3>
-              <p className="text-gray-600">Los profesores aún no han publicado cursos. Vuelve pronto.</p>
+              <div className="text-6xl mb-4">🎉</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                {enrolledCourses.length > 0 
+                  ? '¡Estás inscrito en todos los cursos disponibles!'
+                  : 'No hay cursos disponibles'}
+              </h3>
+              <p className="text-gray-600">
+                {enrolledCourses.length > 0
+                  ? 'Continúa aprendiendo en tus cursos actuales.'
+                  : 'Los profesores aún no han publicado cursos. Vuelve pronto.'}
+              </p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {availableCourses.map((course) => (
+              {availableToEnroll.map((course) => (
                 <div
                   key={course.id}
                   className="bg-white rounded-lg shadow-sm border-2 border-gray-200 hover:border-indigo-400 transition overflow-hidden"
@@ -137,10 +217,11 @@ export default function StudentDashboard() {
                     </p>
                     
                     <button
-                      onClick={() => router.push(`/student/courses/${course.id}`)}
-                      className="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition font-medium"
+                      onClick={() => handleEnroll(course.id)}
+                      disabled={enrollingCourse === course.id}
+                      className="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Ver Curso →
+                      {enrollingCourse === course.id ? 'Inscribiendo...' : 'Inscribirse →'}
                     </button>
                   </div>
                 </div>

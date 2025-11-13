@@ -144,6 +144,12 @@ export const courses = {
   delete: async (id: number) => {
     await api.delete(`/courses/${id}`);
   },
+
+  getStudents: async (courseId: number) => {
+    const { data } = await api.get<User[]>(`/courses/${courseId}/students`);
+    return data;
+  },
+
 };
 
 // ==================== UNITS ====================
@@ -383,5 +389,37 @@ export const speaking = {
   endSession: async (sessionId: number) => {
     const { data } = await api.post(`/speaking/sessions/${sessionId}/end`);
     return data;
+  },
+};
+
+
+// ==================== ENROLLMENTS ====================
+export interface Enrollment {
+  id: number;
+  student_id: number;
+  course_id: number;
+  enrolled_at: string;
+  progress: any;
+}
+
+export const enrollments = {
+  // Inscribirse en un curso
+  enroll: async (courseId: number) => {
+    const { data } = await api.post<Enrollment>('/enrollments', {
+      course_id: courseId
+    });
+    return data;
+  },
+
+  // Obtener mis inscripciones
+  getMyEnrollments: async () => {
+    const { data } = await api.get<Enrollment[]>('/my-enrollments');
+    return data;
+  },
+
+  // Verificar si estoy inscrito en un curso
+  isEnrolled: async (courseId: number) => {
+    const enrollments = await api.get<Enrollment[]>('/my-enrollments');
+    return enrollments.data.some(e => e.course_id === courseId);
   },
 };

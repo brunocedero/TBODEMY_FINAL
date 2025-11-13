@@ -149,6 +149,24 @@ export default function TeacherDashboard() {
 // ==================== Componente CourseCard ====================
 function CourseCard({ course, onUpdate }: { course: Course; onUpdate: () => void }) {
   const router = useRouter();
+  const [studentCount, setStudentCount] = useState<number>(0);
+  const [loadingStudents, setLoadingStudents] = useState(true);
+
+  useEffect(() => {
+    loadStudentCount();
+  }, [course.id]);
+
+  const loadStudentCount = async () => {
+    try {
+      const students = await courses.getStudents(course.id);
+      setStudentCount(students.length);
+    } catch (error) {
+      console.error('Error loading students:', error);
+      setStudentCount(0);
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
   
   const handleDelete = async () => {
     if (!confirm('¿Eliminar este curso?')) return;
@@ -184,26 +202,47 @@ function CourseCard({ course, onUpdate }: { course: Course; onUpdate: () => void
       <p className="text-gray-600 text-sm mb-4 line-clamp-2">
         {course.description || 'Sin descripción'}
       </p>
+
+      {/* Contador de estudiantes */}
+      <div className="mb-4 flex items-center gap-2 text-sm text-indigo-600">
+        <span>👥</span>
+        <span className="font-medium">
+          {loadingStudents ? '...' : `${studentCount} estudiante${studentCount !== 1 ? 's' : ''}`}
+        </span>
+      </div>
       
-      <div className="flex gap-2">
-        <button
-          onClick={() => router.push(`/teacher/courses/${course.id}`)}
-          className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm"
-        >
-          Editar
-        </button>
-        <button
-          onClick={handleTogglePublish}
-          className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-sm"
-        >
-          {course.is_published ? '👁️' : '📝'}
-        </button>
-        <button
-          onClick={handleDelete}
-          className="px-4 py-2 border border-red-300 text-red-600 rounded hover:bg-red-50 text-sm"
-        >
-          🗑️
-        </button>
+      <div className="space-y-2">
+        {/* Primera fila de botones */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => router.push(`/teacher/courses/${course.id}`)}
+            className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm"
+          >
+            ✏️ Editar
+          </button>
+          <button
+            onClick={() => router.push(`/teacher/courses/${course.id}/students`)}
+            className="flex-1 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 text-sm"
+          >
+            👥 Estudiantes
+          </button>
+        </div>
+
+        {/* Segunda fila de botones */}
+        <div className="flex gap-2">
+          <button
+            onClick={handleTogglePublish}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-sm"
+          >
+            {course.is_published ? '👁️ Despublicar' : '📢 Publicar'}
+          </button>
+          <button
+            onClick={handleDelete}
+            className="px-4 py-2 border border-red-300 text-red-600 rounded hover:bg-red-50 text-sm"
+          >
+            🗑️
+          </button>
+        </div>
       </div>
     </div>
   );

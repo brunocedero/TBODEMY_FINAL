@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { auth, courses, units, type Unit } from '@/lib/api';
+import { auth, courses, units, enrollments, type Unit } from '@/lib/api';
 
 export default function StudentCoursePage() {
   const router = useRouter();
@@ -11,7 +11,9 @@ export default function StudentCoursePage() {
 
   const [course, setCourse] = useState<any>(null);
   const [courseUnits, setCourseUnits] = useState<Unit[]>([]);
+  const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [enrolling, setEnrolling] = useState(false);
 
   useEffect(() => {
     if (!auth.isAuthenticated()) {
@@ -24,16 +26,36 @@ export default function StudentCoursePage() {
 
   const loadData = async () => {
     try {
-      const [courseData, unitsData] = await Promise.all([
+      const [courseData, unitsData, enrollmentsData] = await Promise.all([
         courses.getById(courseId),
         units.getByCourse(courseId),
+        enrollments.getMyEnrollments()
       ]);
+      
       setCourse(courseData);
       setCourseUnits(unitsData);
+      setIsEnrolled(enrollmentsData.some(e => e.course_id === courseId));
     } catch (err) {
       console.error('Error loading data:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEnroll = async () => {
+    setEnrolling(true);
+    try {
+      await enrollments.enroll(courseId);
+      setIsEnrolled(true);
+    } catch (error: any) {
+      console.error('Error enrolling:', error);
+      if (error.response?.status === 400) {
+        alert('Ya estás inscrito en este curso');
+      } else {
+        alert('Error al inscribirse en el curso');
+      }
+    } finally {
+      setEnrolling(false);
     }
   };
 
@@ -45,6 +67,52 @@ export default function StudentCoursePage() {
     );
   }
 
+  // Si no está inscrito, mostrar pantalla de inscripción
+  if (!isEnrolled) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-white shadow">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <button
+              onClick={() => router.push('/student/dashboard')}
+              className="text-indigo-600 hover:text-indigo-700 mb-3 flex items-center gap-2"
+            >
+              ← Volver al inicio
+            </button>
+          </div>
+        </header>
+
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-8 mb-6">
+              <span className="text-8xl">📚</span>
+            </div>
+            
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">{course?.title}</h1>
+            <p className="text-gray-600 mb-8 text-lg">
+              {course?.description || 'Curso de inglés'}
+            </p>
+
+            <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 mb-8">
+              <p className="text-yellow-800 font-medium">
+                🔒 Debes inscribirte para acceder al contenido de este curso
+              </p>
+            </div>
+
+            <button
+              onClick={handleEnroll}
+              disabled={enrolling}
+              className="bg-indigo-600 text-white px-8 py-4 rounded-lg hover:bg-indigo-700 transition font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {enrolling ? 'Inscribiendo...' : '✓ Inscribirme Ahora'}
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Si está inscrito, mostrar el contenido normal
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -60,8 +128,13 @@ export default function StudentCoursePage() {
             <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-4">
               <span className="text-5xl">📚</span>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">{course?.title}</h1>
+            <div className="flex-1">
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold text-gray-900">{course?.title}</h1>
+                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
+                  ✓ Inscrito
+                </span>
+              </div>
               <p className="text-gray-600 mt-1">{course?.description}</p>
             </div>
           </div>

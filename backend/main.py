@@ -632,6 +632,35 @@ def check_grammar_endpoint(
     }
 
 
+@app.get("/courses/{course_id}/students", response_model=List[schemas.User])
+def get_course_students(
+    course_id: int,
+    current_teacher: models.User = Depends(get_current_teacher),
+    db: Session = Depends(get_db)
+):
+    """Obtener estudiantes inscritos en un curso (solo profesores del curso)"""
+    # Verificar que el curso existe y pertenece al profesor
+    course = crud.get_course(db, course_id=course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    if course.teacher_id != current_teacher.id:
+        raise HTTPException(status_code=403, detail="Not authorized to view students of this course")
+    
+    # Obtener enrollments del curso
+    enrollments_list = db.query(models.Enrollment).filter(
+        models.Enrollment.course_id == course_id
+    ).all()
+    
+    # Obtener los estudiantes
+    students = []
+    for enrollment in enrollments_list:
+        student = crud.get_user_by_id(db, enrollment.student_id)
+        if student:
+            students.append(student)
+    
+    return students
+
+
 # ==================== ROOT ====================
 @app.get("/")
 def root():

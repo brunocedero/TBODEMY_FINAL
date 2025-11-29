@@ -423,3 +423,29 @@ export const enrollments = {
     return enrollments.data.some(e => e.course_id === courseId);
   },
 };
+
+
+// ==================== DAILY LESSONS ====================
+
+export interface DailyWord {
+  word: string;
+  translation: string;
+  explanation: string;
+  example: string;
+  example_es: string;
+  audio_path: string | null;
+}
+
+export interface DailyLesson {
+  id: number;
+  theme: string;
+  words: DailyWord[];
+}
+
+// Agregar función
+export const learning = {
+  getDailyLesson: async () => {
+    const { data } = await api.get<DailyLesson>('/daily-lesson');
+    return data;
+  },
+};

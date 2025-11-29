@@ -804,6 +804,53 @@ def end_speaking_session_endpoint(
     crud.end_speaking_session(db, session_id)
     return {"message": "Session ended successfully"}
 
+# ==================== DAILY LESSONS ====================
+
+
+from src.daily_vocabulary import get_daily_lesson, get_all_lessons
+from src.text_to_speech import generate_audio_for_sentence
+
+@app.get("/daily-lesson")
+def get_daily_lesson_endpoint():
+    """Obtener la lección del día con vocabulario"""
+    from src.daily_vocabulary import get_daily_lesson
+    from pathlib import Path
+    from gtts import gTTS
+    
+    lesson = get_daily_lesson()
+    
+    # Directorio de audios
+    audio_base_dir = Path(__file__).parent.parent / "static" / "audio" / "daily_lessons"
+    audio_base_dir.mkdir(parents=True, exist_ok=True)
+    
+    for word_data in lesson["words"]:
+        # Nombre del archivo
+        safe_word = word_data['word'].replace(' ', '_').replace('/', '_')
+        filename = f"daily_{safe_word}.mp3"
+        filepath = audio_base_dir / filename
+        
+        # Generar si no existe
+        if not filepath.exists():
+            try:
+                tts = gTTS(text=word_data['example'], lang='en', slow=False)
+                tts.save(str(filepath))
+                print(f"✅ Generado: {filename}")
+            except Exception as e:
+                print(f"❌ Error: {e}")
+                word_data['audio_path'] = None
+                continue
+        
+        # Asignar ruta con /static
+        word_data['audio_path'] = f"/static/audio/daily_lessons/{filename}"
+    
+    return lesson
+
+
+@app.get("/daily-lesson/all")
+def get_all_lessons_endpoint():
+    """Obtener todas las lecciones (para admin o estadísticas)"""
+    return get_all_lessons()
+
 
 if __name__ == "__main__":
     import uvicorn

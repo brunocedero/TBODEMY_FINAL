@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth, courses, enrollments, type Course, type Enrollment } from '@/lib/api';
+import { auth, courses, enrollments, learning, type Course, type Enrollment, type DailyLesson } from '@/lib/api';
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -11,6 +11,9 @@ export default function StudentDashboard() {
   const [myEnrollments, setMyEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [enrollingCourse, setEnrollingCourse] = useState<number | null>(null);
+  const [dailyLesson, setDailyLesson] = useState<DailyLesson | null>(null);
+  const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (!auth.isAuthenticated()) {
@@ -26,7 +29,26 @@ export default function StudentDashboard() {
 
     setUser(currentUser);
     loadData();
+
+
+    loadDailyLesson();
   }, [router]);
+
+  const loadDailyLesson = async () => {
+    try {
+      const lesson = await learning.getDailyLesson();
+      setDailyLesson(lesson);
+    } catch (error) {
+      console.error('Error loading daily lesson:', error);
+    }
+  };
+
+  const playAudio = (audioPath: string, wordId: string) => {
+    const audio = new Audio(`http://localhost:8000${audioPath}`);
+    setPlayingAudio(wordId);
+    audio.play();
+    audio.onended = () => setPlayingAudio(null);
+  };
 
   const loadData = async () => {
     try {
@@ -107,14 +129,14 @@ export default function StudentDashboard() {
                 onClick={() => router.push('/student/friends')}
                 className="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-200 font-medium"
               >
-                👥 Amigos
+                👥 Friends
               </button>
               <span className="text-gray-700">👋 {user?.name}</span>
               <button
                 onClick={handleLogout}
                 className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-sm font-medium"
               >
-                Cerrar Sesión
+                Logout
               </button>
             </div>
           </div>
@@ -125,9 +147,60 @@ export default function StudentDashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg text-white p-8 mb-8">
-          <h2 className="text-3xl font-bold mb-2">¡Bienvenido a tu espacio de aprendizaje!</h2>
-          <p className="text-indigo-100">Explora los cursos disponibles y empieza a mejorar tu inglés</p>
+          <h2 className="text-3xl font-bold mb-2">Welcome to your learning space!</h2>
+          <p className="text-indigo-100">Explore the available courses and start improving your English</p>
         </div>
+
+         {/* 🆕 DAILY LESSON CARD */}
+        {dailyLesson && (
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg shadow-xl text-white p-8 mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-4xl">📚</span>
+              <div>
+                <h2 className="text-2xl font-bold">Lección del Día</h2>
+                <p className="text-purple-100">{dailyLesson.theme}</p>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-4 mt-6">
+              {dailyLesson.words.map((word, index) => (
+                <div
+                  key={index}
+                  className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 className="text-xl font-bold">{word.word}</h3>
+                      <p className="text-sm text-purple-100">{word.translation}</p>
+                    </div>
+                    {word.audio_path && (
+                      <button
+                        onClick={() => playAudio(word.audio_path!, `${dailyLesson.id}-${index}`)}
+                        disabled={playingAudio === `${dailyLesson.id}-${index}`}
+                        className="bg-white text-purple-600 p-2 rounded-full hover:bg-purple-100 transition disabled:opacity-50"
+                      >
+                        {playingAudio === `${dailyLesson.id}-${index}` ? '⏸️' : '🔊'}
+                      </button>
+                    )}
+                  </div>
+
+                  <p className="text-sm mb-3 text-purple-50">
+                    {word.explanation}
+                  </p>
+
+                  <div className="bg-white bg-opacity-10 rounded p-2">
+                    <p className="text-sm italic mb-1">
+                      "{word.example}"
+                    </p>
+                    <p className="text-xs text-purple-100">
+                      {word.example_es}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">

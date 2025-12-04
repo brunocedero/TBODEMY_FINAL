@@ -2,18 +2,16 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copiar package.json primero (mejor caché)
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Copiar código
 COPY . .
 
-# Build de producción
 RUN npm run build
 
-# Puerto
 EXPOSE 3000
 
-# Comando para ejecutar
 CMD ["npm", "start"]

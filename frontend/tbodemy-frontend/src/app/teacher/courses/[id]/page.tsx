@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { auth, courses, units, audioSentences, quizzes, type Unit, type AudioSentence, type Quiz } from '@/lib/api';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'http://46.224.58.99:8000');
 
 export default function CourseEditorPage() {
   const router = useRouter();
@@ -57,7 +57,7 @@ export default function CourseEditorPage() {
             onClick={() => router.push('/teacher/dashboard')}
             className="text-indigo-600 hover:text-indigo-700 mb-3 flex items-center gap-2"
           >
-            ← Volver al dashboard
+            ← Back to dashboard
           </button>
           
           <div className="flex justify-between items-start">
@@ -74,14 +74,14 @@ export default function CourseEditorPage() {
                     : 'bg-white text-indigo-600 border-2 border-indigo-600'
                 }`}
               >
-                {previewMode ? '✏️ Modo Edición' : '👁️ Vista Previa'}
+                {previewMode ? '✏️ Edit Mode' : '👁️ Preview'}
               </button>
               <span className={`px-4 py-2 rounded-full text-sm font-medium ${
                 course?.is_published 
                   ? 'bg-green-100 text-green-800' 
                   : 'bg-gray-100 text-gray-800'
               }`}>
-                {course?.is_published ? '✓ Publicado' : '📝 Borrador'}
+                {course?.is_published ? '✓ Published' : '📝 Draft'}
               </span>
             </div>
           </div>
@@ -95,26 +95,26 @@ export default function CourseEditorPage() {
           <>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
-                📚 Unidades ({courseUnits.length})
+                📚 Units ({courseUnits.length})
               </h2>
               <button
                 onClick={() => setShowAddUnit(true)}
                 className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium shadow-sm"
               >
-                + Agregar Unidad
+                + Add unit
               </button>
             </div>
 
             {courseUnits.length === 0 ? (
               <div className="bg-white rounded-lg shadow-sm border-2 border-dashed border-gray-300 p-12 text-center">
                 <div className="text-6xl mb-4">📖</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No hay unidades todavía</h3>
-                <p className="text-gray-600 mb-6">Crea la primera unidad de tu curso</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">There are no units yet</h3>
+                <p className="text-gray-600 mb-6">Create the first unit of your course</p>
                 <button
                   onClick={() => setShowAddUnit(true)}
                   className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium"
                 >
-                  Crear Primera Unidad
+                  Create first unit
                 </button>
               </div>
             ) : (
@@ -329,7 +329,7 @@ function AudioPlayer({ audio }: { audio: AudioSentence }) {
                   }}
                 />
               ))}
-              <span className="text-xs text-indigo-600 font-medium ml-2">Reproduciendo...</span>
+              <span className="text-xs text-indigo-600 font-medium ml-2">Playing...</span>
             </div>
           )}
         </div>
@@ -410,7 +410,7 @@ function SimpleAudioPlayer({ audio, onDelete, onOrderChange }: SimpleAudioPlayer
       <div className="flex items-center gap-4">
         {/* Order Input */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500 font-medium">Orden:</span>
+          <span className="text-sm text-gray-500 font-medium">Order:</span>
           <input
             type="number"
             min="0"
@@ -455,7 +455,7 @@ function SimpleAudioPlayer({ audio, onDelete, onOrderChange }: SimpleAudioPlayer
           </p>
           {isPlaying && (
             <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded-full animate-pulse">
-              ▶ Reproduciendo
+              ▶ Playing
             </span>
           )}
         </div>
@@ -504,14 +504,14 @@ function StudentPreview({ courseUnits }: { courseUnits: Unit[] }) {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6">
-        <h2 className="text-2xl font-bold mb-2">👁️ Vista Previa del Estudiante</h2>
-        <p className="text-indigo-100">Así verán los estudiantes tu curso</p>
+        <h2 className="text-2xl font-bold mb-2">👁️ Student Preview</h2>
+        <p className="text-indigo-100">This is how students will see your course</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 p-6">
         {/* Units List */}
         <div className="md:col-span-1">
-          <h3 className="font-semibold text-gray-900 mb-4">Unidades</h3>
+          <h3 className="font-semibold text-gray-900 mb-4">Units</h3>
           <div className="space-y-2">
             {courseUnits.map((unit, index) => (
               <button
@@ -524,7 +524,7 @@ function StudentPreview({ courseUnits }: { courseUnits: Unit[] }) {
                 }`}
               >
                 <div className="font-medium text-gray-900">
-                  Unidad {index + 1}
+                  Unit {index + 1}
                 </div>
                 <div className="text-sm text-gray-600">{unit.title}</div>
               </button>
@@ -537,7 +537,7 @@ function StudentPreview({ courseUnits }: { courseUnits: Unit[] }) {
           {!selectedUnit ? (
             <div className="text-center py-12 text-gray-500">
               <div className="text-6xl mb-4">📖</div>
-              <p>Selecciona una unidad para ver su contenido</p>
+              <p>Select a unit to see its content</p>
             </div>
           ) : loading ? (
             <div className="flex justify-center py-12">
@@ -560,7 +560,7 @@ function StudentPreview({ courseUnits }: { courseUnits: Unit[] }) {
               {audios.length > 0 && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    🎧 Práctica de Audio
+                    🎧 Audio Practice
                   </h4>
                   <div className="space-y-3">
                     {audios.map((audio) => (
@@ -574,7 +574,7 @@ function StudentPreview({ courseUnits }: { courseUnits: Unit[] }) {
               {unitQuizzes.length > 0 && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    ✏️ Ejercicios
+                    ✏️ Exercises
                   </h4>
                   <div className="space-y-4">
                     {unitQuizzes.map((quiz) => (
@@ -586,7 +586,7 @@ function StudentPreview({ courseUnits }: { courseUnits: Unit[] }) {
 
               {audios.length === 0 && unitQuizzes.length === 0 && !selectedUnit.content && (
                 <div className="text-center py-8 text-gray-500">
-                  Esta unidad aún no tiene contenido
+                  This unit does not have any content yet
                 </div>
               )}
             </div>
@@ -631,18 +631,18 @@ function QuizPreview({ quiz }: { quiz: Quiz }) {
             setShowResult(false);
           }}
           className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          placeholder="Tu respuesta..."
+          placeholder="Your answer..."
         />
         <button
           onClick={checkAnswer}
           className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700"
         >
-          Verificar
+          Check
         </button>
       </div>
       {showResult && (
         <div className={`mt-3 p-3 rounded-md ${isCorrect ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-          {isCorrect ? '✓ ¡Correcto!' : `✗ Incorrecto. La respuesta correcta es: ${quiz.correct_answer}`}
+          {isCorrect ? '✓ Correct!' : `✗ Incorrect. The correct answer is: ${quiz.correct_answer}`}
         </div>
       )}
     </div>
@@ -677,12 +677,12 @@ function UnitEditorCard({ unit, onUpdate }: { unit: Unit; onUpdate: () => void }
   };
 
   const handleDelete = async () => {
-    if (!confirm('¿Eliminar esta unidad y todo su contenido?')) return;
+    if (!confirm('Delete this unit and all its content?')) return;
     try {
       await units.delete(unit.id);
       onUpdate();
     } catch (err) {
-      alert('Error al eliminar la unidad');
+      alert('Error deleting unit');
     }
   };
 
@@ -700,11 +700,11 @@ function UnitEditorCard({ unit, onUpdate }: { unit: Unit; onUpdate: () => void }
         )
       );
       
-      alert('✓ Orden actualizado correctamente');
+      alert('✓ Order updated successfully');
       loadContent();
     } catch (err) {
-      console.error('Error actualizando orden:', err);
-      alert('Error al actualizar el orden');
+      console.error('Error updating order:', err);
+      alert('Error updating order');
     }
   };
 
@@ -714,20 +714,20 @@ function UnitEditorCard({ unit, onUpdate }: { unit: Unit; onUpdate: () => void }
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <h3 className="text-xl font-bold text-gray-900 mb-2">
-              📖 Unidad {unit.order + 1}: {unit.title}
+              📖 Unit {unit.order + 1}: {unit.title}
             </h3>
             {unit.content && (
               <p className="text-gray-600 text-sm line-clamp-2">{unit.content}</p>
             )}
             <div className="flex gap-4 mt-3 text-sm">
               <span className={`${unit.content ? 'text-green-600 font-medium' : 'text-gray-400'}`}>
-                {unit.content ? '✓ Texto agregado' : '○ Sin texto'}
+                {unit.content ? '✓ Text added' : '○ No text'}
               </span>
               <span className="text-gray-600">
                 🎧 {audios.length} audio{audios.length !== 1 ? 's' : ''}
               </span>
               <span className="text-gray-600">
-                ✏️ {unitQuizzes.length} ejercicio{unitQuizzes.length !== 1 ? 's' : ''}
+                ✏️ {unitQuizzes.length} exercise{unitQuizzes.length !== 1 ? 's' : ''}
               </span>
             </div>
           </div>
@@ -736,7 +736,7 @@ function UnitEditorCard({ unit, onUpdate }: { unit: Unit; onUpdate: () => void }
               onClick={() => setExpanded(!expanded)}
               className="px-4 py-2 text-indigo-600 border-2 border-indigo-600 rounded-lg hover:bg-indigo-50 font-medium transition"
             >
-              {expanded ? 'Ocultar ▲' : 'Editar ▼'}
+              {expanded ? 'Hide ▲' : 'Edit ▼'}
             </button>
             <button
               onClick={handleDelete}
@@ -755,7 +755,7 @@ function UnitEditorCard({ unit, onUpdate }: { unit: Unit; onUpdate: () => void }
               onClick={() => setShowAddContent(!showAddContent)}
               className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium shadow-sm"
             >
-              {showAddContent ? '✕ Cerrar' : '+ Agregar Contenido'}
+              {showAddContent ? '✕ Close' : '+ Add Content'}
             </button>
           </div>
 
@@ -770,7 +770,7 @@ function UnitEditorCard({ unit, onUpdate }: { unit: Unit; onUpdate: () => void }
                 }`}
               >
                 <div className="text-2xl mb-2">📝</div>
-                <div className="font-medium">Texto</div>
+                <div className="font-medium">Text</div>
               </button>
               <button
                 onClick={() => setContentType('audio')}
@@ -826,7 +826,7 @@ function UnitEditorCard({ unit, onUpdate }: { unit: Unit; onUpdate: () => void }
                 <div className="flex items-start gap-3 flex-1">
                   <span className="text-2xl">📝</span>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 mb-2">Contenido de texto:</p>
+                    <p className="text-sm font-medium text-gray-900 mb-2">Text content:</p>
                     <p className="text-gray-700 whitespace-pre-line">{unit.content}</p>
                   </div>
                 </div>
@@ -836,13 +836,13 @@ function UnitEditorCard({ unit, onUpdate }: { unit: Unit; onUpdate: () => void }
             {(audios.length > 1 || unitQuizzes.length > 1) && (
               <div className="bg-yellow-50 border-2 border-yellow-300 p-3 rounded-lg flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-yellow-700 font-medium">💡 Cambia los números para reordenar</span>
+                  <span className="text-yellow-700 font-medium">💡 Change the numbers to reorder</span>
                 </div>
                 <button
                   onClick={handleReorder}
                   className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium"
                 >
-                  Guardar Orden
+                  Save Order
                 </button>
               </div>
             )}
@@ -854,7 +854,7 @@ function UnitEditorCard({ unit, onUpdate }: { unit: Unit; onUpdate: () => void }
                     key={audio.id}
                     audio={{...audio, order: audio.order || 0}}
                     onDelete={async () => {
-                      if (confirm('¿Eliminar este audio?')) {
+                      if (confirm('Delete this audio?')) {
                         await audioSentences.delete(audio.id);
                         loadContent();
                       }
@@ -877,7 +877,7 @@ function UnitEditorCard({ unit, onUpdate }: { unit: Unit; onUpdate: () => void }
                     className="bg-white p-4 rounded-lg border-2 border-gray-200 flex items-center gap-3"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500 font-medium">Orden:</span>
+                      <span className="text-sm text-gray-500 font-medium">Order:</span>
                       <input
                         type="number"
                         min="0"
@@ -893,11 +893,11 @@ function UnitEditorCard({ unit, onUpdate }: { unit: Unit; onUpdate: () => void }
                     <span className="text-2xl">❓</span>
                     <div className="flex-1">
                       <p className="text-gray-900 font-medium">{quiz.question}</p>
-                      <p className="text-sm text-green-600 mt-1">✓ Respuesta: {quiz.correct_answer}</p>
+                      <p className="text-sm text-green-600 mt-1">✓ Answer: {quiz.correct_answer}</p>
                     </div>
                     <button
                       onClick={async () => {
-                        if (confirm('¿Eliminar este quiz?')) {
+                        if (confirm('Delete this quiz?')) {
                           await quizzes.delete(quiz.id);
                           loadContent();
                         }
@@ -931,7 +931,7 @@ function AddUnitModal({ courseId, order, onClose, onSuccess }: any) {
       await units.create({ course_id: courseId, title, content, order });
       onSuccess();
     } catch (err) {
-      alert('Error al crear la unidad');
+      alert('Error creating unit');
     } finally {
       setLoading(false);
     }
@@ -940,35 +940,35 @@ function AddUnitModal({ courseId, order, onClose, onSuccess }: any) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-lg w-full p-6 shadow-2xl">
-        <h2 className="text-2xl font-bold mb-4">📖 Nueva Unidad</h2>
+        <h2 className="text-2xl font-bold mb-4">📖 New Unit</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Título de la unidad *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Unit title *</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Ej: Saludos y presentaciones"
+              placeholder="e.g. Greetings and introductions"
             />
           </div>
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Contenido introductorio (opcional)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Introductory content (optional)</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={4}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Texto introductorio de la unidad..."
+              placeholder="Introductory text for this unit..."
             />
           </div>
           <div className="flex gap-3">
             <button type="button" onClick={onClose} className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-medium">
-              Cancelar
+              Cancel
             </button>
             <button type="submit" disabled={loading} className="flex-1 px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 font-medium">
-              {loading ? 'Creando...' : 'Crear Unidad'}
+              {loading ? 'Creating...' : 'Create Unit'}
             </button>
           </div>
         </form>
@@ -987,10 +987,10 @@ function AddTextForm({ unit, onSuccess }: any) {
     setLoading(true);
     try {
       await units.update(unit.id, { content });
-      unit.content = content; // Actualizar el objeto local
+      unit.content = content; // Update local object
       onSuccess();
     } catch (err) {
-      alert('Error al guardar el texto');
+      alert('Error saving text');
     } finally {
       setLoading(false);
     }
@@ -998,13 +998,13 @@ function AddTextForm({ unit, onSuccess }: any) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-blue-50 border-2 border-blue-200 p-6 rounded-lg mb-6">
-      <label className="block text-sm font-medium text-gray-900 mb-3">📝 Contenido de texto</label>
+      <label className="block text-sm font-medium text-gray-900 mb-3">📝 Text content</label>
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={6}
         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Escribe el contenido de la unidad aquí..."
+        placeholder="Write the unit content here..."
         required
       />
       <div className="flex gap-2 mt-3">
@@ -1013,10 +1013,10 @@ function AddTextForm({ unit, onSuccess }: any) {
           disabled={loading}
           className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
         >
-          {loading ? 'Guardando...' : '💾 Guardar Texto'}
+          {loading ? 'Saving...' : '💾 Save text'}
         </button>
         <p className="text-xs text-gray-600 flex items-center">
-          El texto aparecerá en la lista después de guardar
+          The text will appear in the list after saving
         </p>
       </div>
     </form>
@@ -1041,7 +1041,7 @@ function AddAudioForm({ unit, onSuccess }: any) {
       setSentence('');
       onSuccess();
     } catch (err) {
-      alert('Error al crear el audio');
+      alert('Error creating audio');
     } finally {
       setLoading(false);
     }
@@ -1050,7 +1050,7 @@ function AddAudioForm({ unit, onSuccess }: any) {
   return (
     <form onSubmit={handleSubmit} className="bg-green-50 border-2 border-green-200 p-6 rounded-lg mb-6">
       <label className="block text-sm font-medium text-gray-900 mb-3">
-        🎤 Frase en inglés (se generará el audio automáticamente con gTTS)
+        🎤 English sentence (audio will be generated automatically with gTTS)
       </label>
       <input
         type="text"
@@ -1065,7 +1065,7 @@ function AddAudioForm({ unit, onSuccess }: any) {
         disabled={loading}
         className="mt-3 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium"
       >
-        {loading ? 'Generando audio...' : '+ Agregar Audio'}
+        {loading ? 'Generating audio...' : '+ Add audio'}
       </button>
     </form>
   );
@@ -1093,7 +1093,7 @@ function AddQuizForm({ unit, onSuccess }: any) {
       setCorrectAnswer('');
       onSuccess();
     } catch (err) {
-      alert('Error al crear el quiz');
+      alert('Error creating quiz');
     } finally {
       setLoading(false);
     }
@@ -1103,7 +1103,7 @@ function AddQuizForm({ unit, onSuccess }: any) {
     <form onSubmit={handleSubmit} className="bg-purple-50 border-2 border-purple-200 p-6 rounded-lg mb-6">
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-900 mb-3">
-          ❓ Pregunta (usa [palabra] para indicar el espacio en blanco)
+          ❓ Question (use [word] to indicate the blank)
         </label>
         <input
           type="text"
@@ -1113,10 +1113,10 @@ function AddQuizForm({ unit, onSuccess }: any) {
           placeholder="I [am] a student"
           required
         />
-        <p className="text-xs text-gray-600 mt-2">Ejemplo: "Hello, my name [is] John" → el estudiante completará "is"</p>
+        <p className="text-xs text-gray-600 mt-2">Example: "Hello, my name [is] John" → the student will fill in "is"</p>
       </div>
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-900 mb-3">Respuesta correcta</label>
+        <label className="block text-sm font-medium text-gray-900 mb-3">Correct answer</label>
         <input
           type="text"
           value={correctAnswer}
@@ -1131,7 +1131,7 @@ function AddQuizForm({ unit, onSuccess }: any) {
         disabled={loading}
         className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 disabled:opacity-50 font-medium"
       >
-        {loading ? 'Creando...' : '+ Agregar Quiz'}
+        {loading ? 'Creating...' : '+ Add quiz'}
       </button>
     </form>
   );

@@ -12,7 +12,7 @@ export default function TeacherDashboard() {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    // Verificar autenticación
+    // Check authentication
     if (!auth.isAuthenticated()) {
       router.push('/login');
       return;
@@ -60,7 +60,7 @@ export default function TeacherDashboard() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-indigo-600">Tbodemy</h1>
-              <p className="text-sm text-gray-600">Panel de Profesor</p>
+              <p className="text-sm text-gray-600">Teacher Dashboard</p>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-gray-700">{user?.name}</span>
@@ -68,7 +68,7 @@ export default function TeacherDashboard() {
                 onClick={handleLogout}
                 className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md text-sm font-medium"
               >
-                Cerrar Sesión
+                Log out
               </button>
             </div>
           </div>
@@ -80,17 +80,17 @@ export default function TeacherDashboard() {
         {/* Stats */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Total de Cursos</div>
+            <div className="text-sm text-gray-600">Total courses</div>
             <div className="text-3xl font-bold text-indigo-600">{myCourses.length}</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Publicados</div>
+            <div className="text-sm text-gray-600">Published</div>
             <div className="text-3xl font-bold text-green-600">
               {myCourses.filter(c => c.is_published).length}
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Borradores</div>
+            <div className="text-sm text-gray-600">Drafts</div>
             <div className="text-3xl font-bold text-gray-600">
               {myCourses.filter(c => !c.is_published).length}
             </div>
@@ -99,24 +99,24 @@ export default function TeacherDashboard() {
 
         {/* Actions */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Mis Cursos</h2>
+          <h2 className="text-2xl font-bold text-gray-900">My courses</h2>
           <button
             onClick={() => setShowModal(true)}
             className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 font-medium"
           >
-            + Crear Curso
+            + Create course
           </button>
         </div>
 
         {/* Courses List */}
         {myCourses.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
-            <p className="text-gray-500 mb-4">No tienes cursos todavía</p>
+            <p className="text-gray-500 mb-4">You don't have any courses yet</p>
             <button
               onClick={() => setShowModal(true)}
               className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700"
             >
-              Crear tu primer curso
+              Create your first course
             </button>
           </div>
         ) : (
@@ -132,7 +132,7 @@ export default function TeacherDashboard() {
         )}
       </main>
 
-      {/* Modal para crear curso */}
+      {/* Modal to create course */}
       {showModal && (
         <CreateCourseModal
           onClose={() => setShowModal(false)}
@@ -146,7 +146,7 @@ export default function TeacherDashboard() {
   );
 }
 
-// ==================== Componente CourseCard ====================
+// ==================== CourseCard Component ====================
 function CourseCard({ course, onUpdate }: { course: Course; onUpdate: () => void }) {
   const router = useRouter();
   const [studentCount, setStudentCount] = useState<number>(0);
@@ -169,13 +169,13 @@ function CourseCard({ course, onUpdate }: { course: Course; onUpdate: () => void
   };
   
   const handleDelete = async () => {
-    if (!confirm('¿Eliminar este curso?')) return;
+    if (!confirm('Delete this course?')) return;
     
     try {
       await courses.delete(course.id);
       onUpdate();
     } catch (err) {
-      alert('Error al eliminar');
+      alert('Error deleting course');
     }
   };
 
@@ -184,7 +184,7 @@ function CourseCard({ course, onUpdate }: { course: Course; onUpdate: () => void
       await courses.update(course.id, { is_published: !course.is_published });
       onUpdate();
     } catch (err) {
-      alert('Error al actualizar');
+      alert('Error updating course');
     }
   };
 
@@ -195,46 +195,46 @@ function CourseCard({ course, onUpdate }: { course: Course; onUpdate: () => void
         <span className={`px-2 py-1 text-xs rounded ${
           course.is_published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
         }`}>
-          {course.is_published ? 'Publicado' : 'Borrador'}
+          {course.is_published ? 'Published' : 'Draft'}
         </span>
       </div>
       
       <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-        {course.description || 'Sin descripción'}
+        {course.description || 'No description'}
       </p>
 
-      {/* Contador de estudiantes */}
+      {/* Students counter */}
       <div className="mb-4 flex items-center gap-2 text-sm text-indigo-600">
         <span>👥</span>
         <span className="font-medium">
-          {loadingStudents ? '...' : `${studentCount} estudiante${studentCount !== 1 ? 's' : ''}`}
+          {loadingStudents ? '...' : `${studentCount} student${studentCount !== 1 ? 's' : ''}`}
         </span>
       </div>
       
       <div className="space-y-2">
-        {/* Primera fila de botones */}
+        {/* First row of buttons */}
         <div className="flex gap-2">
           <button
             onClick={() => router.push(`/teacher/courses/${course.id}`)}
             className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm"
           >
-            ✏️ Editar
+            ✏️ Edit
           </button>
           <button
             onClick={() => router.push(`/teacher/courses/${course.id}/students`)}
             className="flex-1 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 text-sm"
           >
-            👥 Estudiantes
+            👥 Students
           </button>
         </div>
 
-        {/* Segunda fila de botones */}
+        {/* Second row of buttons */}
         <div className="flex gap-2">
           <button
             onClick={handleTogglePublish}
             className="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-sm"
           >
-            {course.is_published ? '👁️ Despublicar' : '📢 Publicar'}
+            {course.is_published ? '👁️ Unpublish' : '📢 Publish'}
           </button>
           <button
             onClick={handleDelete}
@@ -248,7 +248,7 @@ function CourseCard({ course, onUpdate }: { course: Course; onUpdate: () => void
   );
 }
 
-// ==================== Modal para Crear Curso ====================
+// ==================== Modal to Create Course ====================
 function CreateCourseModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -264,7 +264,7 @@ function CreateCourseModal({ onClose, onSuccess }: { onClose: () => void; onSucc
       await courses.create({ title, description });
       onSuccess();
     } catch (err) {
-      setError('Error al crear el curso');
+      setError('Error creating course');
     } finally {
       setLoading(false);
     }
@@ -273,7 +273,7 @@ function CreateCourseModal({ onClose, onSuccess }: { onClose: () => void; onSucc
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-md w-full p-6">
-        <h2 className="text-2xl font-bold mb-4">Crear Nuevo Curso</h2>
+        <h2 className="text-2xl font-bold mb-4">Create new course</h2>
         
         {error && (
           <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -284,7 +284,7 @@ function CreateCourseModal({ onClose, onSuccess }: { onClose: () => void; onSucc
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Título del Curso *
+              Course title *
             </label>
             <input
               type="text"
@@ -292,20 +292,20 @@ function CreateCourseModal({ onClose, onSuccess }: { onClose: () => void; onSucc
               onChange={(e) => setTitle(e.target.value)}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Ej: Inglés para Principiantes"
+              placeholder="e.g. English for beginners"
             />
           </div>
           
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Descripción
+              Description
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Describe tu curso..."
+              placeholder="Describe your course..."
             />
           </div>
           
@@ -315,14 +315,14 @@ function CreateCourseModal({ onClose, onSuccess }: { onClose: () => void; onSucc
               onClick={onClose}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
             >
-              Cancelar
+              Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
               className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
             >
-              {loading ? 'Creando...' : 'Crear'}
+              {loading ? 'Creating...' : 'Create'}
             </button>
           </div>
         </form>

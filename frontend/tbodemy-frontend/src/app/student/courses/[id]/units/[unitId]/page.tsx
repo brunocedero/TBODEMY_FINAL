@@ -64,7 +64,7 @@ export default function StudentUnitPage() {
             onClick={() => router.push(`/student/courses/${courseId}`)}
             className="text-indigo-600 hover:text-indigo-700 mb-3 flex items-center gap-2"
           >
-            ← Volver al curso
+            ← Back to course
           </button>
           <div>
             <p className="text-sm text-gray-500 mb-1">{course?.title}</p>
@@ -81,7 +81,7 @@ export default function StudentUnitPage() {
             <section className="bg-white rounded-lg shadow-sm border-2 border-blue-200 p-8">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-3xl">📝</span>
-                <h2 className="text-2xl font-bold text-gray-900">Contenido de la Lección</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Lesson content</h2>
               </div>
               <div className="prose prose-lg max-w-none">
                 <p className="text-gray-700 whitespace-pre-line leading-relaxed">
@@ -96,7 +96,7 @@ export default function StudentUnitPage() {
             <section className="bg-white rounded-lg shadow-sm border-2 border-green-200 p-8">
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-3xl">🎧</span>
-                <h2 className="text-2xl font-bold text-gray-900">Práctica de Audio</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Audio practice</h2>
               </div>
               <div className="space-y-4">
                 {audios.map((audio, index) => (
@@ -111,7 +111,7 @@ export default function StudentUnitPage() {
             <section className="bg-white rounded-lg shadow-sm border-2 border-purple-200 p-8">
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-3xl">✏️</span>
-                <h2 className="text-2xl font-bold text-gray-900">Ejercicios de Práctica</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Practice exercises</h2>
               </div>
               <div className="space-y-6">
                 {unitQuizzes.map((quiz, index) => (
@@ -127,17 +127,17 @@ export default function StudentUnitPage() {
               onClick={() => router.push(`/student/courses/${courseId}`)}
               className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
             >
-              ← Volver a Unidades
+              ← Back to units
             </button>
             <button
               onClick={() => {
-                // Aquí se podría marcar como completada y navegar a la siguiente
-                alert('¡Unidad completada! 🎉');
+                // Here you could mark as completed and navigate to the next unit
+                alert('Unit completed! 🎉');
                 router.push(`/student/courses/${courseId}`);
               }}
               className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
             >
-              Marcar como Completada ✓
+              Mark as completed ✓
             </button>
           </div>
         </div>
@@ -351,7 +351,7 @@ function StyledAudioPlayer({ audio, index }: { audio: AudioSentence; index: numb
                           }}
                         />
                       ))}
-                      <span className="text-xs text-green-600 font-medium ml-2">Reproduciendo</span>
+                      <span className="text-xs text-green-600 font-medium ml-2">Playing</span>
                     </div>
                   )}
                 </div>
@@ -360,7 +360,7 @@ function StyledAudioPlayer({ audio, index }: { audio: AudioSentence; index: numb
                 <button
                   onClick={handleReplay}
                   className="p-2 text-gray-500 hover:text-green-600 transition-colors hover:bg-green-50 rounded-lg"
-                  title="Reiniciar"
+                  title="Replay"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
@@ -373,7 +373,7 @@ function StyledAudioPlayer({ audio, index }: { audio: AudioSentence; index: numb
             <div className="hidden lg:block">
               <div className="bg-white/70 backdrop-blur px-3 py-2 rounded-lg border border-green-200">
                 <p className="text-xs text-green-700 font-medium">
-                  💡 Tip: Escucha y repite
+                  💡 Tip: Listen and repeat
                 </p>
               </div>
             </div>
@@ -404,15 +404,15 @@ function QuizComponent({ quiz, index }: { quiz: Quiz; index: number }) {
     setIsCorrect(false);
   };
 
-  // Dividir la pregunta en partes
+  // Split the question into parts
   const renderQuestion = () => {
     const parts = quiz.question.split(/\[([^\]]+)\]/);
     return parts.map((part, i) => {
       if (i % 2 === 0) {
-        // Texto normal
+        // Normal text
         return <span key={i}>{part}</span>;
       } else {
-        // Espacio en blanco
+        // Blank space
         return (
           <span key={i} className="inline-block mx-2">
             <input
@@ -480,11 +480,11 @@ function QuizComponent({ quiz, index }: { quiz: Quiz; index: number }) {
                   }
                 `}
               >
-                Verificar Respuesta
+                Check answer
               </button>
               {attempts > 0 && (
                 <span className="text-sm text-gray-500">
-                  Intentos: {attempts}
+                  Attempts: {attempts}
                 </span>
               )}
             </div>
@@ -499,9 +499,9 @@ function QuizComponent({ quiz, index }: { quiz: Quiz; index: number }) {
                   <div className="flex items-center gap-3">
                     <span className="text-3xl animate-bounce">🎉</span>
                     <div>
-                      <p className="font-semibold text-green-800">¡Correcto! Excelente trabajo.</p>
+                      <p className="font-semibold text-green-800">Correct! Great job.</p>
                       {attempts === 1 && (
-                        <p className="text-sm text-green-600 mt-1">¡Lo lograste al primer intento!</p>
+                        <p className="text-sm text-green-600 mt-1">You got it on the first try!</p>
                       )}
                     </div>
                   </div>
@@ -509,13 +509,13 @@ function QuizComponent({ quiz, index }: { quiz: Quiz; index: number }) {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-2xl">😔</span>
-                      <span className="font-semibold text-red-800">No es correcto</span>
+                      <span className="font-semibold text-red-800">That&apos;s not correct</span>
                     </div>
                     <p className="text-sm text-red-700">
-                      Tu respuesta: <span className="font-medium line-through">{answer}</span>
+                      Your answer: <span className="font-medium line-through">{answer}</span>
                     </p>
                     <p className="text-sm text-red-700 mt-1">
-                      Respuesta correcta: <span className="font-bold text-green-700">{quiz.correct_answer}</span>
+                      Correct answer: <span className="font-bold text-green-700">{quiz.correct_answer}</span>
                     </p>
                   </div>
                 )}
@@ -526,7 +526,7 @@ function QuizComponent({ quiz, index }: { quiz: Quiz; index: number }) {
                   onClick={handleReset}
                   className="px-6 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg hover:from-gray-600 hover:to-gray-700 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                 >
-                  🔄 Intentar de Nuevo
+                  🔄 Try again
                 </button>
               )}
             </div>

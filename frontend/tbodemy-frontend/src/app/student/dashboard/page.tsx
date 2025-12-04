@@ -14,7 +14,6 @@ export default function StudentDashboard() {
   const [dailyLesson, setDailyLesson] = useState<DailyLesson | null>(null);
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
 
-
   useEffect(() => {
     if (!auth.isAuthenticated()) {
       router.push('/login');
@@ -29,8 +28,6 @@ export default function StudentDashboard() {
 
     setUser(currentUser);
     loadData();
-
-
     loadDailyLesson();
   }, [router]);
 
@@ -57,7 +54,7 @@ export default function StudentDashboard() {
         enrollments.getMyEnrollments()
       ]);
       
-      // Mostrar solo cursos publicados
+      // Show only published courses
       setAvailableCourses(allCourses.filter(c => c.is_published));
       setMyEnrollments(myEnrollmentsData);
     } catch (err) {
@@ -75,17 +72,17 @@ export default function StudentDashboard() {
     setEnrollingCourse(courseId);
     try {
       await enrollments.enroll(courseId);
-      // Recargar enrollments
+      // Reload enrollments
       const updatedEnrollments = await enrollments.getMyEnrollments();
       setMyEnrollments(updatedEnrollments);
-      // Navegar al curso
+      // Navigate to course
       router.push(`/student/courses/${courseId}`);
     } catch (error: any) {
       console.error('Error enrolling:', error);
       if (error.response?.status === 400) {
-        alert('Ya estás inscrito en este curso');
+        alert('You are already enrolled in this course');
       } else {
-        alert('Error al inscribirse en el curso');
+        alert('Error enrolling in the course');
       }
     } finally {
       setEnrollingCourse(null);
@@ -116,7 +113,7 @@ export default function StudentDashboard() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-indigo-600">Tbodemy</h1>
-              <p className="text-sm text-gray-600">Panel de Estudiante</p>
+              <p className="text-sm text-gray-600">Student Dashboard</p>
             </div>
             <div className="flex items-center gap-4">
               <button
@@ -151,13 +148,13 @@ export default function StudentDashboard() {
           <p className="text-indigo-100">Explore the available courses and start improving your English</p>
         </div>
 
-         {/* 🆕 DAILY LESSON CARD */}
+        {/* 🆕 DAILY LESSON CARD */}
         {dailyLesson && (
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg shadow-xl text-white p-8 mb-8">
             <div className="flex items-center gap-3 mb-4">
               <span className="text-4xl">📚</span>
               <div>
-                <h2 className="text-2xl font-bold">Lección del Día</h2>
+                <h2 className="text-2xl font-bold">Daily lesson</h2>
                 <p className="text-purple-100">{dailyLesson.theme}</p>
               </div>
             </div>
@@ -205,15 +202,15 @@ export default function StudentDashboard() {
         {/* Stats */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Cursos Inscritos</div>
+            <div className="text-sm text-gray-600">Enrolled courses</div>
             <div className="text-3xl font-bold text-indigo-600">{enrolledCourses.length}</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Cursos Disponibles</div>
+            <div className="text-sm text-gray-600">Available courses</div>
             <div className="text-3xl font-bold text-green-600">{availableToEnroll.length}</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Lecciones Completadas</div>
+            <div className="text-sm text-gray-600">Completed lessons</div>
             <div className="text-3xl font-bold text-gray-600">0</div>
           </div>
         </div>
@@ -221,7 +218,7 @@ export default function StudentDashboard() {
         {/* My Enrolled Courses */}
         {enrolledCourses.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">📚 Mis Cursos</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">📚 My courses</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {enrolledCourses.map((course) => (
                 <div
@@ -231,20 +228,20 @@ export default function StudentDashboard() {
                   <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-32 flex items-center justify-center relative">
                     <span className="text-6xl">📚</span>
                     <div className="absolute top-2 right-2 bg-white text-green-600 px-3 py-1 rounded-full text-xs font-bold">
-                      ✓ Inscrito
+                      ✓ Enrolled
                     </div>
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">{course.title}</h3>
                     <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                      {course.description || 'Curso de inglés'}
+                      {course.description || 'English course'}
                     </p>
                     
                     <button
                       onClick={() => router.push(`/student/courses/${course.id}`)}
                       className="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition font-medium"
                     >
-                      Continuar Curso →
+                      Continue course →
                     </button>
                   </div>
                 </div>
@@ -256,7 +253,7 @@ export default function StudentDashboard() {
         {/* Available Courses */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            🔍 Descubre Más Cursos
+            🔍 Discover more courses
           </h2>
           
           {availableToEnroll.length === 0 ? (
@@ -264,13 +261,13 @@ export default function StudentDashboard() {
               <div className="text-6xl mb-4">🎉</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 {enrolledCourses.length > 0 
-                  ? '¡Estás inscrito en todos los cursos disponibles!'
-                  : 'No hay cursos disponibles'}
+                  ? 'You are enrolled in all available courses!'
+                  : 'There are no courses available'}
               </h3>
               <p className="text-gray-600">
                 {enrolledCourses.length > 0
-                  ? 'Continúa aprendiendo en tus cursos actuales.'
-                  : 'Los profesores aún no han publicado cursos. Vuelve pronto.'}
+                  ? 'Keep learning in your current courses.'
+                  : 'Teachers haven&apos;t published any courses yet. Check back soon.'}
               </p>
             </div>
           ) : (
@@ -286,7 +283,7 @@ export default function StudentDashboard() {
                   <div className="p-6">
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">{course.title}</h3>
                     <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                      {course.description || 'Curso de inglés'}
+                      {course.description || 'English course'}
                     </p>
                     
                     <button
@@ -294,7 +291,7 @@ export default function StudentDashboard() {
                       disabled={enrollingCourse === course.id}
                       className="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {enrollingCourse === course.id ? 'Inscribiendo...' : 'Inscribirse →'}
+                      {enrollingCourse === course.id ? 'Enrolling...' : 'Enroll →'}
                     </button>
                   </div>
                 </div>

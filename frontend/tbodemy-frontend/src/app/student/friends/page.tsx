@@ -48,10 +48,10 @@ export default function FriendsPage() {
   const handleSendRequest = async (receiverId: number) => {
     try {
       await social.sendFriendRequest(receiverId);
-      alert('✓ Solicitud enviada');
+      alert('✓ Request sent');
       loadData();
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Error al enviar solicitud');
+      alert(err.response?.data?.detail || 'Error sending request');
     }
   };
 
@@ -60,7 +60,7 @@ export default function FriendsPage() {
       await social.acceptRequest(friendshipId);
       loadData();
     } catch (err) {
-      alert('Error al aceptar solicitud');
+      alert('Error accepting request');
     }
   };
 
@@ -69,7 +69,7 @@ export default function FriendsPage() {
       await social.rejectRequest(friendshipId);
       loadData();
     } catch (err) {
-      alert('Error al rechazar solicitud');
+      alert('Error rejecting request');
     }
   };
 
@@ -95,13 +95,13 @@ export default function FriendsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-indigo-600">👥 Amigos</h1>
+              <h1 className="text-2xl font-bold text-indigo-600">👥 Friends</h1>
             </div>
             <button
               onClick={() => router.push('/student/dashboard')}
               className="text-gray-600 hover:text-gray-900"
             >
-              ← Volver
+              ← Back
             </button>
           </div>
         </div>
@@ -120,7 +120,7 @@ export default function FriendsPage() {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Mis Amigos ({friends.length})
+              My friends ({friends.length})
             </button>
             <button
               onClick={() => setActiveTab('requests')}
@@ -130,7 +130,7 @@ export default function FriendsPage() {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Solicitudes ({requests.length})
+              Requests ({requests.length})
               {requests.length > 0 && (
                 <span className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {requests.length}
@@ -145,7 +145,7 @@ export default function FriendsPage() {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Buscar Estudiantes
+              Search students
             </button>
           </div>
         </div>
@@ -153,11 +153,13 @@ export default function FriendsPage() {
         {/* Tab Content */}
         {activeTab === 'friends' && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Tus Amigos</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Your friends</h2>
             {friends.length === 0 ? (
               <div className="bg-white rounded-lg shadow p-12 text-center">
                 <div className="text-6xl mb-4">👥</div>
-                <p className="text-gray-600">Aún no tienes amigos. ¡Busca estudiantes y envía solicitudes!</p>
+                <p className="text-gray-600">
+                  You don&apos;t have any friends yet. Search for students and send requests!
+                </p>
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -176,7 +178,7 @@ export default function FriendsPage() {
                       onClick={() => router.push(`/student/chat/${friend.id}`)}
                       className="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
                     >
-                      💬 Enviar Mensaje
+                      💬 Send message
                     </button>
                   </div>
                 ))}
@@ -187,11 +189,11 @@ export default function FriendsPage() {
 
         {activeTab === 'requests' && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Solicitudes Pendientes</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Pending requests</h2>
             {requests.length === 0 ? (
               <div className="bg-white rounded-lg shadow p-12 text-center">
                 <div className="text-6xl mb-4">📭</div>
-                <p className="text-gray-600">No tienes solicitudes pendientes</p>
+                <p className="text-gray-600">You don&apos;t have any pending requests</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -200,7 +202,10 @@ export default function FriendsPage() {
                   if (!requester) return null;
                   
                   return (
-                    <div key={request.id} className="bg-white rounded-lg shadow p-6 flex items-center justify-between">
+                    <div
+                      key={request.id}
+                      className="bg-white rounded-lg shadow p-6 flex items-center justify-between"
+                    >
                       <div className="flex items-center gap-4">
                         <div className="bg-indigo-100 rounded-full w-12 h-12 flex items-center justify-center">
                           <span className="text-2xl">👤</span>
@@ -215,13 +220,13 @@ export default function FriendsPage() {
                           onClick={() => handleAccept(request.id)}
                           className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
                         >
-                          ✓ Aceptar
+                          ✓ Accept
                         </button>
                         <button
                           onClick={() => handleReject(request.id)}
                           className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
                         >
-                          ✗ Rechazar
+                          ✗ Decline
                         </button>
                       </div>
                     </div>
@@ -234,7 +239,7 @@ export default function FriendsPage() {
 
         {activeTab === 'search' && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Buscar Estudiantes</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Search students</h2>
             
             {/* Search Bar */}
             <div className="mb-6">
@@ -242,7 +247,7 @@ export default function FriendsPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar por nombre o email..."
+                placeholder="Search by name or email..."
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -266,14 +271,14 @@ export default function FriendsPage() {
                       disabled
                       className="w-full bg-gray-300 text-gray-600 px-4 py-2 rounded-lg cursor-not-allowed"
                     >
-                      ✓ Ya son amigos
+                      ✓ Already friends
                     </button>
                   ) : (
                     <button
                       onClick={() => handleSendRequest(student.id)}
                       className="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
                     >
-                      + Enviar Solicitud
+                      + Send request
                     </button>
                   )}
                 </div>

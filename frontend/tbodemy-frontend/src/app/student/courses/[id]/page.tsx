@@ -50,9 +50,9 @@ export default function StudentCoursePage() {
     } catch (error: any) {
       console.error('Error enrolling:', error);
       if (error.response?.status === 400) {
-        alert('Ya estás inscrito en este curso');
+        alert('You are already enrolled in this course');
       } else {
-        alert('Error al inscribirse en el curso');
+        alert('Error enrolling in the course');
       }
     } finally {
       setEnrolling(false);
@@ -67,7 +67,7 @@ export default function StudentCoursePage() {
     );
   }
 
-  // Si no está inscrito, mostrar pantalla de inscripción
+  // If not enrolled, show enrollment screen
   if (!isEnrolled) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -77,7 +77,7 @@ export default function StudentCoursePage() {
               onClick={() => router.push('/student/dashboard')}
               className="text-indigo-600 hover:text-indigo-700 mb-3 flex items-center gap-2"
             >
-              ← Volver al inicio
+              ← Back to home
             </button>
           </div>
         </header>
@@ -90,12 +90,12 @@ export default function StudentCoursePage() {
             
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{course?.title}</h1>
             <p className="text-gray-600 mb-8 text-lg">
-              {course?.description || 'Curso de inglés'}
+              {course?.description || 'English course'}
             </p>
 
             <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 mb-8">
               <p className="text-yellow-800 font-medium">
-                🔒 Debes inscribirte para acceder al contenido de este curso
+                🔒 You must enroll to access this course content
               </p>
             </div>
 
@@ -104,7 +104,7 @@ export default function StudentCoursePage() {
               disabled={enrolling}
               className="bg-indigo-600 text-white px-8 py-4 rounded-lg hover:bg-indigo-700 transition font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {enrolling ? 'Inscribiendo...' : '✓ Inscribirme Ahora'}
+              {enrolling ? 'Enrolling...' : '✓ Enroll now'}
             </button>
           </div>
         </main>
@@ -112,7 +112,7 @@ export default function StudentCoursePage() {
     );
   }
 
-  // Si está inscrito, mostrar el contenido normal
+  // If enrolled, show normal content
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -122,7 +122,7 @@ export default function StudentCoursePage() {
             onClick={() => router.push('/student/dashboard')}
             className="text-indigo-600 hover:text-indigo-700 mb-3 flex items-center gap-2"
           >
-            ← Volver al inicio
+            ← Back to home
           </button>
           <div className="flex items-center gap-4">
             <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-4">
@@ -132,7 +132,7 @@ export default function StudentCoursePage() {
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-bold text-gray-900">{course?.title}</h1>
                 <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
-                  ✓ Inscrito
+                  ✓ Enrolled
                 </span>
               </div>
               <p className="text-gray-600 mt-1">{course?.description}</p>
@@ -146,8 +146,8 @@ export default function StudentCoursePage() {
         {/* Progress Bar */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <div className="flex justify-between items-center mb-2">
-            <h3 className="font-semibold text-gray-900">Tu Progreso</h3>
-            <span className="text-sm text-gray-600">0% completado</span>
+            <h3 className="font-semibold text-gray-900">Your progress</h3>
+            <span className="text-sm text-gray-600">0% completed</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
             <div className="bg-indigo-600 h-3 rounded-full" style={{ width: '0%' }}></div>
@@ -157,16 +157,16 @@ export default function StudentCoursePage() {
         {/* Units List */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            📖 Unidades del Curso ({courseUnits.length})
+            📖 Course units ({courseUnits.length})
           </h2>
 
           {courseUnits.length === 0 ? (
             <div className="bg-white rounded-lg shadow p-12 text-center">
               <div className="text-6xl mb-4">📝</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Este curso aún no tiene unidades
+                This course doesn&apos;t have units yet
               </h3>
-              <p className="text-gray-600">El profesor está preparando el contenido.</p>
+              <p className="text-gray-600">The teacher is preparing the content.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -195,13 +195,13 @@ export default function StudentCoursePage() {
 
                         <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
                           <span className="flex items-center gap-1">
-                            <span>📝</span> Lección
+                            <span>📝</span> Lesson
                           </span>
                           <span className="flex items-center gap-1">
                             <span>🎧</span> Audio
                           </span>
                           <span className="flex items-center gap-1">
-                            <span>✏️</span> Ejercicios
+                            <span>✏️</span> Exercises
                           </span>
                         </div>
 
@@ -209,7 +209,7 @@ export default function StudentCoursePage() {
                           onClick={() => router.push(`/student/courses/${courseId}/units/${unit.id}`)}
                           className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition font-medium"
                         >
-                          Comenzar Unidad →
+                          Start unit →
                         </button>
                       </div>
 
@@ -217,7 +217,7 @@ export default function StudentCoursePage() {
                         <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mb-2">
                           <span className="text-2xl">○</span>
                         </div>
-                        <span className="text-xs text-gray-500">Pendiente</span>
+                        <span className="text-xs text-gray-500">Pending</span>
                       </div>
                     </div>
                   </div>

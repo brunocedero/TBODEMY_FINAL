@@ -30,7 +30,7 @@ export default function ChatPage() {
     setUser(currentUser);
     loadData();
 
-    // Polling para nuevos mensajes
+    // Polling for new messages
     const interval = setInterval(loadMessages, 3000);
     return () => clearInterval(interval);
   }, [friendId, router]);
@@ -40,7 +40,7 @@ export default function ChatPage() {
   }, [messages]);
 
   useEffect(() => {
-    // Verificar gramática mientras escribe
+    // Check grammar while typing
     if (checkTimeoutRef.current) {
       clearTimeout(checkTimeoutRef.current);
     }
@@ -82,7 +82,7 @@ export default function ChatPage() {
       const messagesData = await social.getConversation(friendId);
       setMessages(messagesData);
     } catch (err) {
-      // Silencioso
+      // Silent
     }
   };
 
@@ -100,7 +100,7 @@ export default function ChatPage() {
       setGrammarCheck(null);
       await loadMessages();
     } catch (err) {
-      alert('Error al enviar mensaje');
+      alert('Error sending message');
     } finally {
       setSending(false);
     }
@@ -131,7 +131,7 @@ export default function ChatPage() {
                 onClick={() => router.push('/student/friends')}
                 className="text-gray-600 hover:text-gray-900"
               >
-                ← Volver
+                ← Back
               </button>
               <div className="bg-indigo-100 rounded-full w-10 h-10 flex items-center justify-center">
                 <span className="text-xl">👤</span>
@@ -152,7 +152,7 @@ export default function ChatPage() {
             {messages.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <div className="text-6xl mb-4">💬</div>
-                <p>No hay mensajes aún. ¡Inicia la conversación!</p>
+                <p>No messages yet. Start the conversation!</p>
               </div>
             ) : (
               messages.map((message) => {
@@ -176,7 +176,7 @@ export default function ChatPage() {
                         {message.corrected_content && message.corrected_content !== message.content && (
                           <div className={`mt-2 pt-2 border-t ${isOwn ? 'border-indigo-500' : 'border-gray-300'}`}>
                             <p className={`text-xs ${isOwn ? 'text-indigo-200' : 'text-gray-600'} mb-1`}>
-                              ✏️ Corrección sugerida:
+                              ✏️ Suggested correction:
                             </p>
                             <p className={`text-sm ${isOwn ? 'text-indigo-100' : 'text-gray-700'}`}>
                               {message.corrected_content}
@@ -185,7 +185,7 @@ export default function ChatPage() {
                         )}
                         
                         <p className={`text-xs mt-1 ${isOwn ? 'text-indigo-200' : 'text-gray-500'}`}>
-                          {new Date(message.created_at).toLocaleTimeString('es-ES', {
+                          {new Date(message.created_at).toLocaleTimeString('en-US', {
                             hour: '2-digit',
                             minute: '2-digit'
                           })}
@@ -209,7 +209,7 @@ export default function ChatPage() {
               <span className="text-2xl">💡</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-yellow-900 mb-2">
-                  Sugerencias de corrección:
+                  Correction suggestions:
                 </p>
                 {grammarCheck.corrections.map((correction: any, index: number) => (
                   <div key={index} className="text-sm text-yellow-800 mb-1">
@@ -221,7 +221,7 @@ export default function ChatPage() {
                   onClick={useCorrectedText}
                   className="mt-2 text-sm bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-700"
                 >
-                  Usar texto corregido
+                  Use corrected text
                 </button>
               </div>
             </div>
@@ -237,7 +237,7 @@ export default function ChatPage() {
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Escribe tu mensaje en inglés..."
+              placeholder="Write your message in English..."
               rows={2}
               className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
             />
@@ -251,7 +251,7 @@ export default function ChatPage() {
           </div>
           {isChecking && (
             <p className="text-xs text-gray-500 mt-2">
-              ⏳ Verificando gramática...
+              ⏳ Checking grammar...
             </p>
           )}
         </div>

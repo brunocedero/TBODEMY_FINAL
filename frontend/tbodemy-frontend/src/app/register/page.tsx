@@ -9,7 +9,7 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'student' | 'teacher'>('teacher'); // Por defecto profesor
+  const [role, setRole] = useState<'student' | 'teacher'>('teacher'); // Default to teacher
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -20,17 +20,17 @@ export default function RegisterPage() {
 
     try {
       await auth.register(email, password, name, role);
-      // Login automático
+      // Auto login
       await auth.login(email, password);
       
-      // Redirigir al dashboard
+      // Redirect to dashboard
       if (role === 'teacher') {
         router.push('/teacher/dashboard');
       } else {
         router.push('/student/dashboard');
       }
     } catch (err: any) {
-      setError('Error al registrarse. Intenta con otro email.');
+      setError('Error signing up. Try another email.');
     } finally {
       setLoading(false);
     }
@@ -41,7 +41,7 @@ export default function RegisterPage() {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-indigo-600 mb-2">Tbodemy</h1>
-          <h2 className="text-2xl font-bold text-gray-900">Crear Cuenta</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Create account</h2>
         </div>
 
         <div className="bg-white p-8 rounded-lg shadow-md">
@@ -54,7 +54,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre
+                Name
               </label>
               <input
                 type="text"
@@ -62,7 +62,7 @@ export default function RegisterPage() {
                 onChange={(e) => setName(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Tu nombre"
+                placeholder="Your name"
               />
             </div>
 
@@ -76,13 +76,13 @@ export default function RegisterPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="tu@email.com"
+                placeholder="you@example.com"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña
+                Password
               </label>
               <input
                 type="password"
@@ -91,13 +91,13 @@ export default function RegisterPage() {
                 required
                 minLength={6}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="At least 6 characters"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tipo de cuenta
+                Account type
               </label>
               <div className="flex gap-4">
                 <label className="flex items-center cursor-pointer">
@@ -105,20 +105,20 @@ export default function RegisterPage() {
                     type="radio"
                     value="teacher"
                     checked={role === 'teacher'}
-                    onChange={(e) => setRole('teacher')}
+                    onChange={() => setRole('teacher')}
                     className="mr-2"
                   />
-                  <span>Profesor</span>
+                  <span>Teacher</span>
                 </label>
                 <label className="flex items-center cursor-pointer">
                   <input
                     type="radio"
                     value="student"
                     checked={role === 'student'}
-                    onChange={(e) => setRole('student')}
+                    onChange={() => setRole('student')}
                     className="mr-2"
                   />
-                  <span>Estudiante</span>
+                  <span>Student</span>
                 </label>
               </div>
             </div>
@@ -128,13 +128,13 @@ export default function RegisterPage() {
               disabled={loading}
               className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:opacity-50 font-medium"
             >
-              {loading ? 'Registrando...' : 'Registrarse'}
+              {loading ? 'Signing up...' : 'Sign up'}
             </button>
           </form>
 
           <div className="mt-4 text-center">
             <a href="/login" className="text-sm text-indigo-600 hover:text-indigo-500">
-              ¿Ya tienes cuenta? Inicia sesión
+              Already have an account? Log in
             </a>
           </div>
         </div>

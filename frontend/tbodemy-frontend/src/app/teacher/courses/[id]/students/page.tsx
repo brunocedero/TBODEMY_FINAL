@@ -61,14 +61,14 @@ export default function CourseStudentsPage() {
             onClick={() => router.push('/teacher/dashboard')}
             className="text-indigo-600 hover:text-indigo-700 mb-3 flex items-center gap-2"
           >
-            ← Volver al Dashboard
+            ← Back to dashboard
           </button>
           <div className="flex items-center gap-4">
             <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-4">
               <span className="text-5xl">👥</span>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Estudiantes Inscritos</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Enrolled Students</h1>
               <p className="text-gray-600 mt-1">{course?.title}</p>
             </div>
           </div>
@@ -80,15 +80,15 @@ export default function CourseStudentsPage() {
         {/* Stats */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Total Estudiantes</div>
+            <div className="text-sm text-gray-600">Total Students</div>
             <div className="text-3xl font-bold text-indigo-600">{students.length}</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Progreso Promedio</div>
+            <div className="text-sm text-gray-600">Average progress</div>
             <div className="text-3xl font-bold text-green-600">0%</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Activos Esta Semana</div>
+            <div className="text-sm text-gray-600">Active this week</div>
             <div className="text-3xl font-bold text-purple-600">-</div>
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function CourseStudentsPage() {
         <div className="bg-white rounded-lg shadow">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900">
-              Lista de Estudiantes ({students.length})
+              List of students ({students.length})
             </h2>
           </div>
 
@@ -105,10 +105,10 @@ export default function CourseStudentsPage() {
             <div className="p-12 text-center">
               <div className="text-6xl mb-4">👤</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Aún no hay estudiantes inscritos
+                No students are enrolled yet
               </h3>
               <p className="text-gray-600">
-                Los estudiantes podrán inscribirse cuando publiques el curso
+                Students will be able to enroll when you publish the course
               </p>
             </div>
           ) : (

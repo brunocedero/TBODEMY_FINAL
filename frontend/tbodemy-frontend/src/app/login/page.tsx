@@ -19,14 +19,14 @@ export default function LoginPage() {
     try {
       const data = await auth.login(email, password);
       
-      // Redirigir según el rol
+      // Redirect based on role
       if (data.user.role === 'teacher') {
         router.push('/teacher/dashboard');
       } else {
         router.push('/student/dashboard');
       }
     } catch (err: any) {
-      setError('Error al iniciar sesión. Verifica tus credenciales.');
+      setError('Error logging in. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -37,7 +37,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-indigo-600 mb-2">Tbodemy</h1>
-          <h2 className="text-2xl font-bold text-gray-900">Iniciar Sesión</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Log in</h2>
         </div>
 
         <div className="bg-white p-8 rounded-lg shadow-md">
@@ -58,13 +58,13 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="tu@email.com"
+                placeholder="you@example.com"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña
+                Password
               </label>
               <input
                 type="password"
@@ -81,13 +81,13 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:opacity-50 font-medium"
             >
-              {loading ? 'Iniciando...' : 'Iniciar Sesión'}
+              {loading ? 'Logging in...' : 'Log in'}
             </button>
           </form>
 
           <div className="mt-4 text-center">
             <a href="/register" className="text-sm text-indigo-600 hover:text-indigo-500">
-              ¿No tienes cuenta? Regístrate
+              Don&apos;t have an account? Sign up
             </a>
           </div>
         </div>

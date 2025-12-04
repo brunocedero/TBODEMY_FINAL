@@ -48,16 +48,16 @@ export default function SpeakingDashboard() {
                 onClick={() => router.push('/student/dashboard')}
                 className="text-indigo-600 hover:text-indigo-700 mb-2"
               >
-                ← Volver al Dashboard
+                ← Back to dashboard
               </button>
               <h1 className="text-2xl font-bold text-gray-900">🎙️ Speaking Practice</h1>
-              <p className="text-sm text-gray-600">Practica conversación con IA</p>
+              <p className="text-sm text-gray-600">Practice conversation with AI</p>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
               className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium"
             >
-              + Nueva Sesión
+              + New session
             </button>
           </div>
         </div>
@@ -69,16 +69,16 @@ export default function SpeakingDashboard() {
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <div className="text-6xl mb-4">🎤</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No tienes sesiones de speaking
+              You don&apos;t have any speaking sessions yet
             </h3>
             <p className="text-gray-600 mb-6">
-              Crea tu primera sesión y empieza a practicar conversación en inglés
+              Create your first session and start practicing English conversation
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
               className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium"
             >
-              Crear Primera Sesión
+              Create first session
             </button>
           </div>
         ) : (
@@ -102,7 +102,7 @@ export default function SpeakingDashboard() {
                         : 'bg-gray-100 text-gray-700'
                     }`}
                   >
-                    {session.is_active ? 'Activa' : 'Finalizada'}
+                    {session.is_active ? 'Active' : 'Finished'}
                   </span>
                 </div>
 
@@ -112,13 +112,13 @@ export default function SpeakingDashboard() {
 
                 <div className="space-y-1 mb-4">
                   <p className="text-sm text-gray-600">
-                    <strong>Tipo:</strong> {session.conversation_type}
+                    <strong>Type:</strong> {session.conversation_type}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <strong>Nivel:</strong> {session.difficulty_level}
+                    <strong>Level:</strong> {session.difficulty_level}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <strong>Creada:</strong>{' '}
+                    <strong>Created:</strong>{' '}
                     {new Date(session.created_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -127,7 +127,7 @@ export default function SpeakingDashboard() {
                   onClick={() => router.push(`/student/speaking/${session.id}`)}
                   className="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition font-medium"
                 >
-                  {session.is_active ? 'Continuar →' : 'Ver Historial'}
+                  {session.is_active ? 'Continue →' : 'View history'}
                 </button>
               </div>
             ))}
@@ -175,7 +175,7 @@ function CreateSessionModal({
       onCreated(session.id);
     } catch (error) {
       console.error('Error creating session:', error);
-      alert('Error al crear la sesión');
+      alert('Error creating session');
     } finally {
       setCreating(false);
     }
@@ -184,18 +184,18 @@ function CreateSessionModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Nueva Sesión de Speaking</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">New speaking session</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tema de conversación
+              Conversation topic
             </label>
             <input
               type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="Ej: Travel, Food, Technology..."
+              placeholder="Ex: Travel, Food, Technology..."
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
@@ -203,7 +203,7 @@ function CreateSessionModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo de conversación
+              Conversation type
             </label>
             <select
               value={conversationType}
@@ -219,16 +219,16 @@ function CreateSessionModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nivel de dificultad
+              Difficulty level
             </label>
             <select
               value={difficultyLevel}
               onChange={(e) => setDifficultyLevel(e.target.value as any)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
             >
-              <option value="beginner">Principiante</option>
-              <option value="intermediate">Intermedio</option>
-              <option value="advanced">Avanzado</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
             </select>
           </div>
 
@@ -238,14 +238,14 @@ function CreateSessionModal({
               onClick={onClose}
               className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300"
             >
-              Cancelar
+              Cancel
             </button>
             <button
               type="submit"
               disabled={creating}
               className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
             >
-              {creating ? 'Creando...' : 'Crear Sesión'}
+              {creating ? 'Creating...' : 'Create session'}
             </button>
           </div>
         </form>
